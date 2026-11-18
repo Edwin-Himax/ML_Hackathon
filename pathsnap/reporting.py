@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import connected_components
 from pathsnap_ml.geometry import load_trip, project
+from .model_catalog import MODELS
 
 
 def plotting():
@@ -19,6 +20,35 @@ def plotting():
 
 def table(headers, rows):
     return '\n'.join(['| ' + ' | '.join(headers) + ' |', '| ' + ' | '.join(['---'] * len(headers)) + ' |'] + ['| ' + ' | '.join(map(str, row)) + ' |' for row in rows])
+
+
+def evaluator_section(summary):
+    transport = 'over HTTP' if summary['transport'] == 'http' else 'in process through the FastAPI endpoints'
+    reference_statuses = {label for row in summary['models'] for label in row['label_status_counts']}
+    coverage = {row['eligible_observations'] for row in summary['models']}
+    sequence_coverage = min(row['sequence_scored_trips'] for row in summary['models'])
+    point_coverage = (f'{next(iter(coverage)):,}' if len(coverage) == 1 else f'{min(coverage):,} to {max(coverage):,}')
+    def percent(value):
+        return 'Unavailable' if value is None else f'{value:.2%}'
+
+    section = [
+        '## 8 Reserved evaluator results',
+        f'{len(summary["models"])} saved classifiers processed {summary["trips"]} reserved trips with {summary["observations"]:,} GPS observations per classifier. All {summary["successful_requests"]} fresh prediction requests succeeded {transport}. The same frozen decoder was used for each classifier. The default remained {MODELS[summary["default_model"]][0]} under the training cross-validation rule.',
+        f'Point agreement covers {point_coverage} eligible observations per model. Ordered route references support sequence scoring on {sequence_coverage} trips for each model.',
+    ]
+    if 'provisional_alignment' in reference_statuses:
+        section.append('Pointwise agreement based on ordered route alignment is provisional. Ambiguous GPS observations are excluded from that metric.')
+    for method, heading in [('classifier', 'Classifier only'), ('hmm', 'Classifier with HMM/Viterbi')]:
+        section.extend([
+            f'### {heading}',
+            table(['Classifier', 'Point agreement', 'Arc Macro F1', 'Continuity', 'Sequence similarity'], [
+                [MODELS[row['model']][0], *[percent(row[method][metric]) for metric in
+                 ('top1_accuracy', 'arc_macro_f1_trip_mean', 'continuity', 'sequence_similarity_trip_mean')]]
+                for row in summary['models']
+            ]),
+        ])
+    section.append('Point agreement is pooled over eligible observations. Continuity is pooled over comparable adjacent observation pairs. Arc Macro F1 and sequence similarity are means across scored trips. The aggregate record includes model build identifiers and median prediction and request times.')
+    return section
 
 
 def eda(args):
@@ -96,12 +126,14 @@ def report(args):
     per_trip = [[r.trip_id, int(r.observations), int(r.eligible_observations), f'{r.classifier_top1_accuracy:.4f}', f'{r.hmm_top1_accuracy:.4f}', f'{r.hmm_continuity:.4f}', f'{r.hmm_sequence_similarity:.4f}'] for _, r in df.iterrows()]
     test_summary = json.loads((args.results / 'test_summary.json').read_text()) if (args.results / 'test_summary.json').exists() else None
     smoke = json.loads((args.results / 'api_smoke_summary.json').read_text()) if (args.results / 'api_smoke_summary.json').exists() else None
+    evaluator_path = args.results / 'evaluator_summary.json'
+    evaluator = json.loads(evaluator_path.read_text(encoding='utf-8')) if evaluator_path.is_file() else None
     md = [
         '# PathSnap Technical Report',
-        'Distributed map matching and route reconstruction. This consolidated report documents the implemented data pipeline, five classifier experiments, Bayesian optimisation, directed-graph HMM/Viterbi reconstruction, local API and evaluator interface. It reports actual saved experiments and identifies the remaining evaluation setup checks.',
+        'Distributed map matching and route reconstruction. This consolidated report documents the implemented data pipeline, six classifier experiments, Bayesian optimisation, directed-graph HMM/Viterbi reconstruction, local API and evaluator interface. It reports actual saved experiments and identifies the remaining evaluation setup checks.',
         '## 1 Project outcome and evaluation status',
         f'The complete application processed all ten supplied student-testing trips ({summary["observations"]:,} observations). On {summary["eligible_observations"]:,} eligible derived labels, classifier-only agreement was {summary["classifier"]["top1_accuracy"]:.4f} and HMM agreement was {summary["hmm"]["top1_accuracy"]:.4f}. Feasible continuity across comparable adjacent observations increased from {summary["classifier"]["continuity"]:.4f} to {summary["hmm"]["continuity"]:.4f}. All {summary["trips_pointwise_improved"]} trips improved overall point agreement.',
-        '**Reference limitation:** supplied route files list traversed arcs, not one label per GPS point. Pointwise results use a provisional ordered reference alignment and exclude ambiguous/distant points. They are agreement with derived labels, not independently verified ground-truth accuracy. Model features and derived labels share geometric cues, which can inflate agreement. Official pointwise labels can be configured in the isolated scorer. No organiser-only evaluator dataset was provided or used.',
+        '**Reference limitation:** supplied route files list traversed arcs. Point agreement uses a provisional ordered reference alignment and excludes ambiguous or distant points. Model features and derived labels share geometric cues, which can inflate agreement. The isolated scorer also accepts official pointwise labels when supplied.',
         '## 2 Dataset understanding and exploratory data analysis',
         table(['Partition', 'Trips', 'GPS observations', 'Missing / invalid coordinates', 'Largest time gap (s)'], [[name, v['trips'], f"{v['observations']:,}", f"{v['missing_rows']} / {v['invalid_coordinates']}", int(v['maximum_gap_s'])] for name, v in quality['partitions'].items()]),
         'The data is grouped by trip. Track files contain longitude, latitude and timestamp; nodes contain longitude and latitude; arcs contain directed node pairs. Original row indices identify observations, nodes and arcs. Routes contain chronological local arc IDs. IDs are never pooled as universal road classes, and trips stay in their declared partitions.',
@@ -120,8 +152,17 @@ def report(args):
         continuity = pd.read_csv(continuity_path).set_index('model')
         comparison = pd.read_csv(root / 'results/member2/model_comparison.csv')
         from pathsnap_ml.reporting import DISPLAY, FAMILY
+        display, families = dict(DISPLAY), dict(FAMILY)
+        lightgbm_results = root / 'results/lightgbm'
+        if (lightgbm_results / 'route_comparison.json').exists():
+            comparison = pd.read_csv(lightgbm_results / 'model_comparison.csv')
+            routes = json.loads((lightgbm_results / 'route_comparison.json').read_text())
+            continuity.loc['lightgbm', 'continuity'] = routes['lightgbm']['classifier']['continuity']
+            display['lightgbm'] = 'LightGBM'
+            families['lightgbm'] = 'Boosted tree ensemble'
         brief = {'logistic_regression': 'C=1; scaled', 'distance_weighted_knn': 'k=15; distance weights; scaled', 'decision_tree': 'depth=10; leaf=20', 'random_forest': '100 trees; depth=14; leaf=10', 'hist_gradient_boosting': '120 rounds; rate=.08; 15 leaves'}
-        combined = table(['Model', 'Family', 'Key configuration', 'CV candidate F1', 'Student Top-1', 'Route continuity', 'Student candidate F1', 'Log loss', 'Inference s'], [[DISPLAY[r.model], FAMILY[r.model], brief[r.model], f'{r.cv_macro_f1_mean:.4f}', f'{r.student_top1_accuracy:.4f}', f'{continuity.loc[r.model, "continuity"]:.4f}', f'{r.student_candidate_macro_f1:.4f}', f'{r.student_candidate_log_loss:.4f}', f'{r.student_model_inference_s:.4f}'] for _, r in comparison.iterrows()])
+        brief['lightgbm'] = '91 trees; rate=.11885; 25 leaves; leaf=70'
+        combined = table(['Model', 'Family', 'Key configuration', 'CV candidate F1', 'Student Top-1', 'Route continuity', 'Student candidate F1', 'Log loss', 'Inference s'], [[display[r.model], families[r.model], brief[r.model], f'{r.cv_macro_f1_mean:.4f}', f'{r.student_top1_accuracy:.4f}', f'{continuity.loc[r.model, "continuity"]:.4f}', f'{r.student_candidate_macro_f1:.4f}', f'{r.student_candidate_log_loss:.4f}', f'{r.student_model_inference_s:.4f}'] for _, r in comparison.iterrows()])
         md.append(combined)
         md.append('The consolidated table combines measured classifier CV/student diagnostics with classifier-only graph continuity on all student GPS observations. Candidate F1 and observation Top-1 use the eligible-label protocol; continuity uses all comparable adjacent observations. Details of precision, recall, timings and each model follow.')
     # Keep measured ML content, but exclude now-superseded application handoff text.
@@ -152,24 +193,28 @@ def report(args):
         table(['Trip', 'GPS points', 'Eligible', 'Classifier Top-1', 'HMM Top-1', 'HMM continuity', 'HMM sequence'], per_trip),
         f'Within the eligible subset, HMM corrected {corrected:,} previously wrong point assignments and changed {harmed:,} previously correct ones to incorrect assignments. Overall improvement therefore does not mean every decoding change helped. The lowest student HMM point agreement was on trip {df.loc[df.hmm_top1_accuracy.idxmin(), "trip_id"]}, at {df.hmm_top1_accuracy.min():.4f}. Ambiguous geometry, reference alignment limitations, local candidate misses and imperfect road connectivity remain failure modes. These counts use the saved provisional alignment audits.',
         '## 6 Geographical visualisation with Folium',
-        'Interactive Folium HTML maps were generated from actual inference for all ten student-testing trips under results/full/maps. Layers distinguish raw GPS (blue), road geometry (gray), supplied development reference (purple), classifier (amber) and HMM (teal), with start/end markers, legend, layer controls and fitted bounds. References are permitted development comparisons only; this directory is not mounted by FastAPI. The optional OpenStreetMap layer is off by default. Folium viewer libraries use their standard CDN assets, so opening the HTML may require Internet even though vectors are embedded. The evaluator UI itself uses an offline canvas map with local assets.',
+        'Interactive Folium HTML maps were generated from actual inference for all ten student-testing trips under results/full/maps. Layers distinguish raw GPS (blue), road geometry (gray), supplied development reference (purple), classifier (amber) and HMM (teal), with start/end markers, legend, layer controls and fitted bounds. References are permitted development comparisons only; this directory is not mounted by FastAPI. The optional OpenStreetMap layer is off by default. Folium viewer libraries use their standard CDN assets, so opening the HTML may require Internet even though vectors are embedded. The live UI offers OpenStreetMap tiles for development trips and a local road-network view for evaluator trips or offline use.',
     ]
     screenshots = args.results / 'screenshots'
-    for name, caption in [('folium_map.jpg', 'Actual Folium development map'), ('ui_desktop.jpg', 'Working local evaluator interface'), ('ui_mobile.jpg', 'Responsive evaluator interface'), ('api_response.jpg', 'Actual local API response')]:
+    for name, caption in [('ui_street_map.jpg', 'Current street-map dashboard'), ('folium_map.jpg', 'Actual Folium development map'), ('ui_desktop.jpg', 'Working local evaluator interface'), ('ui_mobile.jpg', 'Responsive evaluator interface'), ('api_response.jpg', 'Actual local API response')]:
         if (screenshots / name).exists():
             md.append(f'![{caption}](screenshots/{name})')
     md += [
         '## 7 API UI deployment and reproducibility',
-        'FastAPI implements GET /health, GET /trips and POST /predict with an eight-digit trip ID. The model loads once at startup; every prediction request runs fresh GPS/network inference. Request IDs, model versions, timings, outcome and trip ID are logged on the receiving server and in runtime/api_requests.jsonl. Unknown IDs return 404, malformed inputs return 422 and extra prediction fields are rejected. Static serving is restricted to ui/. Reference failures leave predictions available and mark scoring unavailable; no fabricated metric replaces missing references.',
-        'The UI supports all trips in the configured partition, separate API connection settings, real request loading/error states, raw GPS/classifier/HMM layers, keyboard and pointer map navigation, trajectory replay, metrics and JSON export. Returned data includes no reference routes or pointwise correctness. Missing official labels are clearly marked as provisional alignment agreement.',
+        'FastAPI implements GET /health, GET /trips and POST /predict with an eight-digit trip ID and an optional classifier. Saved models load at startup. Every prediction request runs fresh GPS and network inference. The server records request and trip IDs, classifier and version, outcome and timings. Static serving is restricted to ui/. Reference failures leave predictions available and mark scoring unavailable.',
+        'The UI supports all trips in the configured partition, a six-model classifier selector, API connection settings, raw GPS, classifier and HMM layers, keyboard and pointer map navigation, trajectory replay, metrics and JSON export. The API keeps reference routes and pointwise correctness on the server. Point agreement derived from ordered routes is marked provisional.',
         'Run scripts/start_api.ps1 on Laptop 1 (add -Lan for LAN binding); on Laptop 2 run scripts/start_ui.ps1, open localhost:8001 and set the API address to Laptop 1. Set PATHSNAP_ALLOWED_ORIGINS if using a different UI origin. Use scripts/setup.ps1 and requirements-lock.txt for dependencies. Deployment instructions and evaluator data/reference conventions are in DEPLOYMENT.md.',
         (f'Automated checks: {test_summary["tests_run"]} tests executed, {test_summary["failures"]} failures, {test_summary["errors"]} errors. The tests cover graph direction, partial distances, parallel/zero-length edges, decoder gaps/unmatched states, sequence metrics, API validation/CORS, reference separation, and optional official label CSVs.' if test_summary else 'Automated check results have not yet been recorded.'),
         (f'Live HTTP smoke check: all {smoke["passed_trips"]} student-testing trips returned successful predictions, covering {smoke["observations"]:,} observations. Saved request IDs and real timings are in api_smoke_summary.json. Unknown-trip and malformed-ID checks returned 404 and 422 respectively.' if smoke else 'The live HTTP smoke check has not yet been recorded.'),
-        f'Pure prediction time across ten student trips ranged from {summary["prediction_seconds"]["min"]:.3f} to {summary["prediction_seconds"]["max"]:.3f} seconds (median {summary["prediction_seconds"]["median"]:.3f}) in this run; scoring, JSON transport and UI are excluded. These are machine-specific timings. Browser UI checks and localhost API/UI communication were performed on this machine. A physical two-laptop LAN rehearsal, receiving-laptop terminal screenshot and final reserved-trip evaluation must still be completed on the actual event setup. Reserved evaluator inputs were not supplied; no results are claimed for them.',
-        '## 8 Conclusions limitations and team review',
+        f'Pure prediction time across ten student trips ranged from {summary["prediction_seconds"]["min"]:.3f} to {summary["prediction_seconds"]["max"]:.3f} seconds (median {summary["prediction_seconds"]["median"]:.3f}) on the development machine. The team still needs to rehearse the physical two-laptop setup and capture its receiving-laptop terminal during that run.',
+    ]
+    if evaluator:
+        md.extend(evaluator_section(evaluator))
+    md += [
+        '## 9 Conclusions, limitations and team review' if evaluator else '## 8 Conclusions, limitations and team review',
         'Directed graph transitions and sequence decoding improved both continuity and provisional-label agreement in the measured student-development comparison. The implementation is reproducible through saved source, model/configuration bundles, trip-grouped folds, Bayesian trial logs, decoder trials, per-trip outputs and plot-generation scripts. Label validation remains the most important prerequisite for a definitive accuracy claim. Spherical projection, limited candidate counts, sampled classifier training and imperfect references are practical limitations; official scoring conventions may change the measured results.',
-        'Member 1 reviews dataset interpretation, geometry, candidates and graph transitions; Member 2 reviews features, alignment, five models and Bayesian optimisation; Member 3 reviews HMM, scoring, UI/API and deployment. All members must understand and defend the complete system. AI assistance was used to prepare code, analysis and report text; disclose it as required and review every claim against actual outputs. The public GitHub submission and organiser-specific submission actions are not performed by these local build scripts.',
-        '## 9 Technical references',
+        'Member 1 reviews dataset interpretation, geometry, candidates and graph transitions; Member 2 reviews features, alignment, six classifiers and Bayesian optimisation; Member 3 reviews HMM, scoring, UI/API and deployment. All members must understand and defend the complete system. AI assistance was used to prepare code, analysis and report text; disclose it as required and review every claim against actual outputs. The public GitHub submission and organiser-specific submission actions are not performed by these local build scripts.',
+        '## 10 Technical references' if evaluator else '## 9 Technical references',
         '[FastAPI static files](https://fastapi.tiangolo.com/tutorial/static-files/) and [CORS](https://fastapi.tiangolo.com/tutorial/cors/); [scikit-learn grouped CV](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) and [Gaussian process regression](https://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html); [PROJ azimuthal-equidistant projection](https://proj.org/en/stable/operations/projections/aeqd.html); [Folium layer control](https://python-visualization.github.io/folium/v0.20.0/user_guide/ui_elements/layer_control.html). The directed graph search is implemented locally with a heap and bounded source cache.',
     ]
     (args.results / 'technical_report.md').write_text('\n\n'.join(md) + '\n', encoding='utf-8')
