@@ -46,7 +46,7 @@ def main():
             i += 1; continue
         if line.startswith('# '):
             story.append(Paragraph(inline(line[2:]), styles['ReportTitle']))
-            story.append(Paragraph('Implementation and measured development results<br/>18 November 2026', styles['ReportSubtitle']))
+            story.append(Paragraph('Implementation and measured results', styles['ReportSubtitle']))
         elif line.startswith('## '):
             story.append(Paragraph(inline(line[3:]), styles['Heading1']))
         elif line.startswith('### '):
@@ -80,7 +80,7 @@ def main():
             elif n == 7:
                 weights = [.14, .10, .11, .16, .16, .17, .16]
             elif n == 5:
-                weights = [.20, .10, .20, .25, .25]
+                weights = [.25, .19, .17, .16, .23] if rows[0][0] == 'Classifier' else [.20, .10, .20, .25, .25]
             elif n == 4:
                 weights = [.24, .22, .27, .27]
             elif n == 3:
@@ -108,7 +108,7 @@ def main():
         canvas.setFont('Helvetica', 8); canvas.setFillColor(colors.HexColor('#82938b'))
         if doc.page > 1:
             canvas.drawString(18 * mm, A4[1] - 11 * mm, 'PATHSNAP / TECHNICAL REPORT')
-        canvas.drawString(18 * mm, 10 * mm, 'Student-development results / provisional pointwise alignment')
+        canvas.drawString(18 * mm, 10 * mm, 'PathSnap / Development and evaluation')
         canvas.drawRightString(A4[0] - 18 * mm, 10 * mm, str(doc.page))
         canvas.restoreState()
 
