@@ -66,6 +66,16 @@ class GraphTests(unittest.TestCase):
             self.assertEqual(distances[source], 0)
         self.assertLessEqual(len(graph.cache), 2)
 
+    def test_shortest_network_distance_adapter(self):
+        _, _, graph = tiny_graph()
+
+        distance = graph.shortest_network_distance(0, .75, 1, .25)
+        self.assertIsNotNone(distance)
+        self.assertGreater(distance, 0)
+
+        unreachable = graph.shortest_network_distance(0, .2, 2, .8)
+        self.assertIsNone(unreachable)
+
 
 class DecoderTests(unittest.TestCase):
     def build(self, observations, arcs, fractions, probabilities, timestamps=None):
