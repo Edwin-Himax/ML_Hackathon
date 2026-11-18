@@ -7,6 +7,7 @@
     "distance_weighted_knn": 1.0,
     "decision_tree": 0.9120764594569065,
     "random_forest": 0.9192619625820198,
-    "hist_gradient_boosting": 0.9112022386202088
+    "hist_gradient_boosting": 0.9112022386202088,
+    "lightgbm": 0.918919718547254
   }
 }

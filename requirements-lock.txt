@@ -16,3 +16,4 @@ starlette==1.10.0
 pydantic==2.13.5
 branca==0.8.2
 xyzservices==2026.9.1
+lightgbm==4.6.0

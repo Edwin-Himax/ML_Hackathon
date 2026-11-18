@@ -26,9 +26,9 @@ The offline aligner considers up to eight route occurrences per observation, sco
 
 The five fixed group folds each hold out 16 complete training trips and fit on the remaining 64. Up to 200 eligible, candidate-covered observations per training trip are selected deterministically; all their candidates are retained. Each final untuned model fits 16,000 observations and 96,698 candidate rows drawn from all 80 trips. This is a laptop-budget experiment, not fitting every available GPS observation. CV evaluates up to 400 eligible observations per validation trip; student testing evaluates all eligible observations. Candidate misses remain observation-level errors. There is no observation weighting or class resampling after this group sampling.
 
-StandardScaler is fit only inside each training fold for Logistic Regression and KNN. The tree estimators use the same unscaled feature matrix. Histogram Gradient Boosting internal early stopping is disabled. Candidate binary metrics use labels [nonmatch, match] and threshold 0.5; candidate metrics are averaged by trip. Top-1 accuracy is pooled across eligible observations. Folds and all sampling rules are identical across models. Model selection and the Bayesian objective use only training CV; student testing is the permitted development comparison. No evaluator-testing data was supplied or used.
+StandardScaler is fit only inside each training fold for Logistic Regression and KNN. The tree estimators use the same unscaled feature matrix. Histogram Gradient Boosting internal early stopping is disabled. Candidate binary metrics use labels [nonmatch, match] and threshold 0.5; candidate metrics are averaged by trip. Top-1 accuracy is pooled across eligible observations. Folds and all sampling rules are identical across models. Model selection and the Bayesian objective use only training CV; student testing is the permitted development comparison.
 
-## Five model comparison
+## Six-model comparison
 
 | Model | Family | CV candidate F1 | Student precision | Student recall | Student F1 | Student Top-1 | Binary log loss | Classifier seconds |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -37,6 +37,7 @@ StandardScaler is fit only inside each training fold for Logistic Regression and
 | Decision Tree | Tree | 0.8958 +/- 0.0174 | 0.9135 | 0.9119 | 0.9126 | 0.8511 | 0.1413 | 0.0064 |
 | Random Forest | Bagged tree ensemble | 0.9015 +/- 0.0180 | 0.9256 | 0.9102 | 0.9175 | 0.8536 | 0.1146 | 0.3120 |
 | Histogram Gradient Boosting | Boosted tree ensemble | 0.9056 +/- 0.0171 | 0.9225 | 0.9187 | 0.9205 | 0.8591 | 0.1104 | 0.0939 |
+| LightGBM | Boosted tree ensemble | 0.9053 +/- 0.0174 | 0.9223 | 0.9187 | 0.9203 | 0.8596 | 0.1099 | 0.1285 |
 
 CV values are fold means with standard deviation. Precision, recall and F1 are binary candidate Macro metrics; they are not arc-class Macro F1. Classifier seconds cover the ten student-testing trips' eligible candidate matrices, excluding raw-file loading, candidates, features and decoding. Log loss is binary candidate loss, not normalized observation loss. Route continuity is pending Member 3's integration and is not estimated here.
 
@@ -50,7 +51,7 @@ CV values are fold means with standard deviation. Precision, recall and F1 are b
 
 A small probabilistic baseline tests whether geometric relationships are adequately linear. Standardisation makes the numerical feature scales comparable. Its linear boundary can miss interactions between heading reliability, distance and road structure.
 
-**Initial configuration:** `{"C": 1.0, "max_iter": 500}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"C": 1.0, "max_iter": 500}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** L2-regularised binary logistic loss.
 
@@ -62,7 +63,7 @@ A small probabilistic baseline tests whether geometric relationships are adequat
 
 Neighbour voting tests whether locally similar candidate configurations share compatibility labels. Standardisation is necessary for meaningful distance. Prediction must search retained training examples, and correlated geometric features can distort neighbour distance.
 
-**Initial configuration:** `{"algorithm": "kd_tree", "leaf_size": 40, "n_neighbors": 15, "weights": "distance"}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"algorithm": "kd_tree", "leaf_size": 40, "n_neighbors": 15, "weights": "distance"}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** No iterative training loss; inverse-distance neighbour voting in scaled feature space.
 
@@ -74,7 +75,7 @@ Neighbour voting tests whether locally similar candidate configurations share co
 
 A bounded tree can learn readable nonlinear rules over distance, heading and candidate context. A single tree is sensitive to the training sample and can produce abrupt probability changes; the depth/leaf constraints limit memorisation.
 
-**Initial configuration:** `{"max_depth": 10, "min_samples_leaf": 20}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"max_depth": 10, "min_samples_leaf": 20}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Greedy Gini impurity reduction with depth and leaf-size constraints.
 
@@ -86,7 +87,7 @@ A bounded tree can learn readable nonlinear rules over distance, heading and can
 
 Averaged bootstrapped trees reduce the instability of a single tree while modelling feature interactions. More trees increase storage and prediction cost; their averaged probabilities are not automatically calibrated.
 
-**Initial configuration:** `{"max_depth": 14, "max_features": "sqrt", "min_samples_leaf": 10, "n_estimators": 100}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"max_depth": 14, "max_features": "sqrt", "min_samples_leaf": 10, "n_estimators": 100}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Bootstrap-trained trees with Gini splits, averaging class probabilities.
 
@@ -98,13 +99,25 @@ Averaged bootstrapped trees reduce the instability of a single tree while modell
 
 Histogram-based boosting combines nonlinear feature rules and handles continuous geometric inputs without scaling. Its iteration count, learning rate and leaf settings require validation. Internal row-split early stopping is disabled to preserve the external trip-group protocol.
 
-**Initial configuration:** `{"early_stopping": false, "l2_regularization": 1.0, "learning_rate": 0.08, "max_iter": 120, "max_leaf_nodes": 15, "min_samples_leaf": 30}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"early_stopping": false, "l2_regularization": 1.0, "learning_rate": 0.08, "max_iter": 120, "max_leaf_nodes": 15, "min_samples_leaf": 30}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Stagewise minimisation of binary log loss, with L2 regularisation and a fixed iteration budget.
 
 **Measured results:** CV candidate Macro F1 0.9056 +/- 0.0171; student-testing precision 0.9225, recall 0.9187, candidate Macro F1 0.9205, Top-1 0.8591 and binary log loss 0.1104. Combined five-fold fitting took 1.982 s; final fitting took 0.467 s; student classifier scoring took 0.0939 s on this machine.
 
 **Fit/generalisation diagnostic:** pooled candidate Macro F1 on 10,000 sampled rows of the exact training matrix is 0.9112. This resubstitution statistic is optimistic and has a different aggregation from the trip-macro held-out scores. The fold standard deviation is 0.0171; inspect per-trip results rather than attributing the difference solely to overfitting. These diagnostics do not establish whether the model has exhausted its capacity or generalises to independently labelled routes.
+
+## LightGBM
+
+LightGBM models nonlinear interactions among distance, heading and road context with histogram-based, leaf-wise boosted trees. Leaf count, minimum leaf size and regularisation constrain complexity. Its candidate compatibility scores supply emissions to the shared sequence decoder.
+
+**Evaluated configuration:** `{"boosting_type": "gbdt", "deterministic": true, "force_col_wise": true, "learning_rate": 0.11884640362789968, "max_bin": 255, "min_child_samples": 70, "n_estimators": 91, "n_jobs": 4, "num_leaves": 25, "objective": "binary", "random_state": 42, "reg_lambda": 0.6158459876169441, "verbosity": -1}`. Random seed 42 applies where supported; compute threads are limited to four.
+
+**Objective:** Binary log loss with leaf-wise gradient boosting and L2 regularisation.
+
+**Measured results:** CV candidate Macro F1 0.9053 +/- 0.0174; student-testing precision 0.9223, recall 0.9187, candidate Macro F1 0.9203, Top-1 0.8596 and binary log loss 0.1099. Combined five-fold fitting took 2.308 s; final fitting took 0.590 s; student classifier scoring took 0.1285 s on this machine.
+
+**Fit/generalisation diagnostic:** pooled candidate Macro F1 on 10,000 sampled rows of the exact training matrix is 0.9189. This resubstitution statistic is optimistic and has a different aggregation from the trip-macro held-out scores. The fold standard deviation is 0.0174; inspect per-trip results rather than attributing the difference solely to overfitting. These diagnostics do not establish whether the model has exhausted its capacity or generalises to independently labelled routes.
 
 ## Model selection
 
@@ -143,6 +156,39 @@ The exported final bundle uses `hist_gradient_boosting.joblib` according to the 
 ![Measured training times](plots/training_times.png)
 
 No epoch training/validation curves were fabricated. The selected estimators were run without a recorded epoch-wise validation history. Confusion matrices use actual final-model student candidate predictions and the fixed 0.5 threshold.
+
+## Boosted classifier tuning and route evaluation
+
+The classifiers use the same 16 features, candidates and labels, five trip folds, and observation sampling. LightGBM 4.6.0 fitting used 16,000 observations and 96,698 candidate rows across 80 training trips. All ten student trips were evaluated after training CV selected its settings.
+
+
+
+
+
+HGB and LightGBM each used a baseline and 12 Bayesian trials. Each search initialized four trials randomly and proposed eight using GP expected improvement. Corresponding search bounds were learning_rate 0.02–0.2 (log), num_leaves/max_leaf_nodes 7–47, min_child_samples/min_samples_leaf 10–80, reg_lambda/l2_regularization 0.001–10 (log), and n_estimators/max_iter 80–200.
+
+Selected LightGBM configuration: n_estimators=91, learning_rate=0.11884640362789968, num_leaves=25, min_child_samples=70, reg_lambda=0.6158459876169441. CPU fitting used four threads, seed 42, deterministic column-wise training, binary objective, and max_bin=255.
+
+![LightGBM Bayesian trials](../lightgbm/plots/bayesian_search.png)
+
+Both HGB and LightGBM were evaluated through the same frozen decoder. Decoder parameters were selected using HGB emissions on the declared training-trip development subset, so this comparison uses one common transition policy.
+
+| Route metric | HGB | LightGBM |
+| --- | --- | --- |
+| CLASSIFIER Point agreement | 0.859105 | 0.859570 |
+| CLASSIFIER Arc Macro F1 | 0.880029 | 0.884842 |
+| CLASSIFIER Continuity | 0.913781 | 0.913625 |
+| CLASSIFIER Sequence similarity | 0.442851 | 0.442167 |
+| HMM Point agreement | 0.903570 | 0.904234 |
+| HMM Arc Macro F1 | 0.920637 | 0.922637 |
+| HMM Continuity | 0.997493 | 0.997493 |
+| HMM Sequence similarity | 0.756493 | 0.753936 |
+
+Decoded point agreement was 13,615/15,068 for HGB and 13,625/15,068 for LightGBM. LightGBM improved four trips, tied three, and scored lower on three. These labels are provisional ordered-route alignments and share geometric cues with model features. All 19,160 GPS observations received predictions.
+
+HGB is the application default under the selection rule of highest training grouped-CV candidate Macro F1. Timing comparisons use recorded runs and are machine-dependent.
+
+Evidence is saved in results/lightgbm/model_comparison.csv, selected.json, protocol.json, bayesian_trials.json, route_comparison.json, and each model subdirectory. Reproduce with python scripts/run_lightgbm.py after cache preparation.
 
 ## Integration and limitations
 

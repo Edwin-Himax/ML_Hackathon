@@ -1,0 +1,96 @@
+{
+  "study_signature": "5e111dd60ba7fd68311cf06dd0341c8e973f12d54bae4eae1df411ced60212aa",
+  "benchmark_signature": "380ea0a3d0feb1720099f20f5f3434f1406aa1d949e8869b2937f71cd991636e",
+  "environment": {
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 116 Stepping 1, AuthenticAMD",
+    "logical_cpus": 16,
+    "numpy": "2.4.2",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.9.1",
+    "pandas": "3.1.1",
+    "joblib": "1.6.0",
+    "lightgbm": "4.6.0"
+  },
+  "config": {
+    "seed": 42,
+    "folds": 5,
+    "threads": 4,
+    "candidate": {
+      "radius_m": 50.0,
+      "fallback_radii_m": [
+        100.0,
+        250.0
+      ],
+      "max_candidates": 8,
+      "index_spacing_m": 30.0
+    },
+    "alignment": {
+      "method": "provisional_ordered_route_v1",
+      "nearest_occurrences": 8,
+      "max_label_distance_m": 50.0,
+      "min_emission_margin": 0.15,
+      "gap_reset_s": 60.0,
+      "break_exclusion_m": 15.0
+    },
+    "training": {
+      "max_observations_per_trip": 200,
+      "cv_validation_observations_per_trip": 400,
+      "student_test_observations_per_trip": null,
+      "candidate_threshold": 0.5
+    },
+    "bayesian": {
+      "trials": 12,
+      "initial_random_trials": 4,
+      "acquisition_candidates": 1024,
+      "objective": "mean_trip_grouped_cv_candidate_macro_f1",
+      "acquisition": "expected_improvement",
+      "surrogate": "GaussianProcessRegressor_Matern_2.5"
+    }
+  },
+  "search_space": [
+    [
+      "learning_rate",
+      0.02,
+      0.2,
+      "log"
+    ],
+    [
+      "num_leaves",
+      7,
+      47,
+      "int"
+    ],
+    [
+      "min_child_samples",
+      10,
+      80,
+      "int"
+    ],
+    [
+      "reg_lambda",
+      0.001,
+      10,
+      "log"
+    ],
+    [
+      "n_estimators",
+      80,
+      200,
+      "int"
+    ]
+  ],
+  "selection": "highest mean training-fold candidate Macro F1; baseline retained on ties",
+  "decoder": {
+    "transition_beta_m": 15.0,
+    "emission_weight": 1.0,
+    "u_turn_penalty": 1.5,
+    "gap_reset_s": 60.0,
+    "max_speed_mps": 70.0,
+    "distance_slack_m": 40.0,
+    "maximum_path_m": 5000.0,
+    "backward_jitter_m": 8.0,
+    "distance_cache_entries": 512
+  }
+}

@@ -10,3 +10,5 @@ runtime/
 output/*.zip
 private_references/
 private_pointwise/
+/evaluator_test/
+/results/evaluator_test/

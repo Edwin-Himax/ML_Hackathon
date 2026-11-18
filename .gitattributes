@@ -1,0 +1,3 @@
+# Preserve source bytes used to identify cached data and saved experiments.
+pathsnap_ml/*.py text eol=lf
+scripts/run_lightgbm.py text eol=lf

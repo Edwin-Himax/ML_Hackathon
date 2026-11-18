@@ -1,6 +1,6 @@
 # Member 2 implementation
 
-The current ownership is defined in `PROJECT_WORKFLOW.md`, based on the team's new three-member distribution. This package implements **features, provisional reference alignment, five-model experiments, grouped CV, Bayesian optimisation, model export and the ML report sections**. It does not implement Member 3's route decoder or application.
+The current ownership is defined in `PROJECT_WORKFLOW.md`, based on the team's new three-member distribution. This package implements **features, provisional reference alignment, six-model experiments, grouped CV, Bayesian optimisation, model export and the ML report sections**. It does not implement Member 3's route decoder or application.
 
 ## Run
 
@@ -103,3 +103,53 @@ Do not include the offline alignment module, reference audits or references in e
 - `artifacts/member2/final_model.joblib` and `.metadata.json`: model, scaler when applicable, feature order, candidate/label policy, versions and provenance.
 
 Raw data and preparation caches are ignored by Git. The current trained models are small enough for normal Git inclusion; the full-project task removed their former ignore rule and includes them in the handoff archive. Repository publication remains a team submission action.
+
+## Classifier results
+
+| Model | Grouped-CV candidate F1 | Student candidate F1 | Student point agreement |
+|---|---:|---:|---:|
+| Logistic Regression | 0.887401 | 0.904692 | 85.13% |
+| Distance-weighted KNN | 0.891221 | 0.911373 | 84.53% |
+| Decision Tree | 0.895788 | 0.912632 | 85.11% |
+| Random Forest | 0.901464 | 0.917506 | 85.36% |
+| Histogram Gradient Boosting | 0.905646 | 0.920494 | 85.91% |
+| LightGBM | 0.905305 | 0.920337 | 85.96% |
+
+## Boosted classifier comparison
+
+LightGBM 4.6.0 used the shared feature cache, five saved training folds, sampling, and evaluation code. The experiment compared one starting configuration and 12 Bayesian trials on training CV. The winning LightGBM trial used 91 trees, a learning rate of 0.118846, 25 leaves, a minimum of 70 samples per leaf, and L2 regularization of 0.615846. The final fit used 96,698 candidate rows from 16,000 observations and all 80 training trips.
+
+| Metric | Current HGB | LightGBM |
+| --- | ---: | ---: |
+| Training grouped-CV candidate Macro F1 | 0.905646 | 0.905305 |
+| Student candidate Macro F1 | 0.920494 | 0.920337 |
+| Student classifier point agreement | 85.91% | 85.96% |
+| Student HMM point agreement | 90.36% | 90.42% |
+| Student HMM route continuity | 99.75% | 99.75% |
+| Student HMM route sequence similarity | 0.756493 | 0.753936 |
+
+Both bundles ran through the same frozen decoder on the ten supplied student trips. Point agreement uses 15,068 provisional labels from 19,160 GPS observations. LightGBM agreed with 10 more points after decoding. The default remains HGB because it scored higher on the training CV selection metric.
+
+With the original benchmark and its prepared caches available, reproduce the comparison from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install lightgbm==4.6.0
+.\.venv\Scripts\python.exe scripts/run_lightgbm.py
+```
+
+The six-model table, trial log, and side-by-side route summary are under `results/lightgbm/`. The LightGBM bundle is `artifacts/lightgbm/lightgbm.joblib`. The baseline model records are stored under `results/member2/`.
+
+## Reserved evaluator results
+
+All six frozen classifiers ran across the ten reserved trips. These are classifier-only scores.
+Point agreement uses 14,831 of 19,674 GPS observations per model and is provisional because the supplied ordered routes had to be aligned to individual observations.
+The default remains Histogram Gradient Boosting based on training cross-validation.
+
+| Classifier | Provisional point agreement | Mean arc Macro F1 |
+|---|---:|---:|
+| Logistic Regression | 77.34% | 86.14% |
+| Distance-weighted KNN | 77.63% | 86.33% |
+| Decision Tree | 77.14% | 86.35% |
+| Random Forest | 77.99% | 86.52% |
+| Histogram Gradient Boosting | 77.86% | 87.03% |
+| LightGBM | 78.09% | 87.85% |
