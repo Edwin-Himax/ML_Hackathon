@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import json
 import logging
-from pathlib import Path
 import re
 import threading
 import time
@@ -15,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from pathsnap import __version__
 from pathsnap.settings import Settings, ROOT
+from pathsnap.model_catalog import MODELS
 from pathsnap.pipeline import Predictor, public_prediction
 from pathsnap.evaluation import Scorer
 
@@ -24,6 +24,7 @@ logger = logging.getLogger('uvicorn.error')
 class PredictRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     trip_id: str = Field(pattern=r'^\d{8}$')
+    model: str | None = Field(default=None, max_length=64, description='Classifier ID from GET /health. Omit for the default.')
 
 
 def create_app(settings=None):
@@ -41,7 +42,16 @@ def create_app(settings=None):
 
     @asynccontextmanager
     async def lifespan(app):
-        app.state.predictor = Predictor(settings.bundle_path, settings.decoder_config())
+        config = settings.decoder_config()
+        app.state.predictor = Predictor(settings.bundle_path, config)
+        default = app.state.predictor.bundle['model_name']
+        app.state.predictors = {default: app.state.predictor}
+        for name, (_, path) in MODELS.items():
+            if name != default and path.is_file():
+                predictor = Predictor(path, config)
+                if predictor.bundle['model_name'] != name:
+                    raise ValueError(f'Deployment bundle does not match model ID {name}')
+                app.state.predictors[name] = predictor
         app.state.scorer = Scorer(settings.reference_root, settings.pointwise_root)
         yield
 
@@ -60,7 +70,12 @@ def create_app(settings=None):
     def health(request: Request):
         trips = trip_list()
         predictor = request.app.state.predictor
+        available = request.app.state.predictors
+        models = [{'id': name, 'label': MODELS[name][0] if name in MODELS else name,
+                   'version': available[name].model_version}
+                  for name in dict.fromkeys([*MODELS, *available]) if name in available]
         return {'status': 'ready' if trips else 'waiting_for_inputs', 'version': __version__, 'model': predictor.bundle['model_name'], 'model_version': predictor.model_version,
+                'models': models,
                 'partition': settings.partition, 'trip_count': len(trips), 'mode': 'Final evaluation' if settings.partition == 'evaluator_test' else 'Development',
                 'reference_policy': 'server_side_aggregate_only', 'classifier_label_status': predictor.bundle['label_status'],
                 'decoder': predictor.decoder_config}
@@ -73,7 +88,7 @@ def create_app(settings=None):
             with (folder / f'{folder.name}.track').open() as stream:
                 observations = sum(1 for line in stream if line.strip())
             entries.append({'trip_id': folder.name, 'label': f'Trip {int(folder.name):02d}', 'observations': observations})
-        return {'partition': settings.partition, 'trips': entries, 'notice': 'Reserved evaluator inputs are not included in the supplied dataset.' if not entries and settings.partition == 'evaluator_test' else None}
+        return {'partition': settings.partition, 'trips': entries, 'notice': 'No evaluator trips found. Check the server data root.' if not entries and settings.partition == 'evaluator_test' else None}
 
     @app.post('/predict')
     def predict(body: PredictRequest, request: Request):
@@ -82,14 +97,19 @@ def create_app(settings=None):
         if body.trip_id not in allowed:
             log({'event': 'prediction_rejected', 'request_id': request_id, 'trip_id': body.trip_id, 'status': 404})
             raise HTTPException(status_code=404, detail='Trip not found in the active partition')
+        default = request.app.state.predictor.bundle['model_name']
+        model = default if body.model is None else body.model
+        predictor = request.app.state.predictors.get(model)
+        if predictor is None:
+            raise HTTPException(status_code=422, detail='Unknown classifier. See GET /health for available models.')
         start = time.perf_counter()
         try:
             with prediction_lock:
-                prediction = request.app.state.predictor.predict(allowed[body.trip_id])
+                prediction = predictor.predict(allowed[body.trip_id])
                 # Prediction is complete before any reference data is opened.
                 score_start = time.perf_counter()
                 try:
-                    metrics = request.app.state.scorer.score(prediction, request.app.state.predictor.bundle)
+                    metrics = request.app.state.scorer.score(prediction, predictor.bundle)
                     scorer_warning = None
                 except (ValueError, OSError) as exc:
                     logger.warning('Scoring unavailable for request %s: %s', request_id, type(exc).__name__)
@@ -97,15 +117,15 @@ def create_app(settings=None):
                     scorer_warning = 'Reference scoring unavailable'
                 response = public_prediction(prediction)
                 response['timings']['scoring_s'] = time.perf_counter() - score_start
-                response.update({'request_id': request_id, 'partition': settings.partition, 'evaluation': metrics,
+                response.update({'request_id': request_id, 'partition': settings.partition, 'model': model, 'evaluation': metrics,
                                  'warnings': ([metrics['label_notice']] if metrics['status'] != 'official_pointwise' else []) + ([scorer_warning] if scorer_warning else [])})
                 response['timings']['request_s'] = time.perf_counter() - start
             log({'event': 'prediction_complete', 'request_id': request_id, 'trip_id': body.trip_id, 'partition': settings.partition,
-                 'model_version': prediction.model_version, 'observations': len(prediction.trip.track), 'hmm_resets': len(response['hmm']['resets']),
+                 'model': model, 'model_version': prediction.model_version, 'observations': len(prediction.trip.track), 'hmm_resets': len(response['hmm']['resets']),
                  'evaluation_status': metrics['status'], 'timings': response['timings'], 'status': 200})
             return response
         except (ValueError, OSError) as exc:
-            log({'event': 'prediction_failed', 'request_id': request_id, 'trip_id': body.trip_id, 'error_type': type(exc).__name__, 'status': 422})
+            log({'event': 'prediction_failed', 'request_id': request_id, 'trip_id': body.trip_id, 'model': model, 'error_type': type(exc).__name__, 'status': 422})
             raise HTTPException(status_code=422, detail='Trip inputs could not be processed. See the server log and validate the dataset.') from exc
 
     @app.get('/', include_in_schema=False)
