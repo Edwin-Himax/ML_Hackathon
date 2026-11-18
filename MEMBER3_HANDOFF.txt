@@ -1,0 +1,18 @@
+PathSnap Member 3 handoff
+=========================
+
+Contents: FastAPI, HMM/Viterbi, route reconstruction and scoring, browser UI,
+two-laptop launch scripts, evaluator runner, project report sources, and tests.
+
+To push this work:
+1. Review these files against the current main branch and resolve overlaps.
+2. Keep evaluator_test/, results/evaluator_test/, runtime/, and API logs out
+   of the repository.
+3. Push the selected Member 3 changes to the agreed team branch.
+
+Dependency: api/app.py imports pathsnap/model_catalog.py. The six-model
+catalog and model artifacts are owned by Member 2. Merge Member 2's branch
+before or together with this API update so its model bundles and API selector
+arrive together.
+
+The ZIP contains no raw evaluator GPS, node, arc, or reference files.
