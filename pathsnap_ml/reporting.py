@@ -33,6 +33,17 @@ def generate_report(result_root, artifacts, config):
     import matplotlib.pyplot as plt
     result_root, artifacts = Path(result_root), Path(artifacts)
     comparison = pd.read_csv(result_root / 'model_comparison.csv').set_index('model').loc[MODEL_NAMES]
+    lightgbm_root = Path(__file__).resolve().parents[1] / 'results/lightgbm'
+    has_lightgbm = (lightgbm_root / 'selected.json').exists()
+    parameters = dict(DEFAULTS)
+    if has_lightgbm:
+        comparison = pd.read_csv(lightgbm_root / 'model_comparison.csv').set_index('model')
+        parameters['lightgbm'] = json.loads((lightgbm_root / 'selected.json').read_text())['metadata']['parameters']
+        DISPLAY['lightgbm'] = 'LightGBM'
+        FAMILY['lightgbm'] = 'Boosted tree ensemble'
+        OBJECTIVE['lightgbm'] = 'Binary log loss with leaf-wise gradient boosting and L2 regularisation.'
+        RATIONALE['lightgbm'] = 'LightGBM models nonlinear interactions among distance, heading and road context with histogram-based, leaf-wise boosted trees. Leaf count, minimum leaf size and regularisation constrain complexity. Its candidate compatibility scores supply emissions to the shared sequence decoder.'
+    names = list(comparison.index)
     selected = json.loads((result_root / 'selected_model.json').read_text())
     tuning = json.loads((result_root / 'tuning_summary.json').read_text())
     metadata = json.loads((result_root / 'run_metadata.json').read_text())
@@ -42,10 +53,12 @@ def generate_report(result_root, artifacts, config):
     plots.mkdir(exist_ok=True)
     plt.rcParams.update({'font.size': 10, 'axes.spines.top': False, 'axes.spines.right': False, 'figure.dpi': 140})
     labels = ['Logistic\nRegression', 'Weighted\nKNN', 'Decision\nTree', 'Random\nForest', 'Histogram\nBoosting']
-    xs = np.arange(5)
+    if has_lightgbm:
+        labels.append('LightGBM')
+    xs = np.arange(len(names))
     fig, ax = plt.subplots(figsize=(9, 4.5))
     ax.bar(xs, comparison.cv_macro_f1_mean, yerr=comparison.cv_macro_f1_std, color='#27798c', capsize=4)
-    ax.set_xticks(xs, labels); ax.set_ylim(0, 1); ax.set_ylabel('Candidate Macro F1'); ax.set_title('Five-model trip-grouped cross-validation\nMean +/- fold standard deviation; provisional labels')
+    ax.set_xticks(xs, labels); ax.set_ylim(0, 1); ax.set_ylabel('Candidate Macro F1'); ax.set_title('Classifier comparison on trip-grouped cross-validation\nMean +/- fold standard deviation; provisional labels')
     fig.tight_layout(); fig.savefig(plots / 'cv_macro_f1.png'); plt.close(fig)
     fig, ax = plt.subplots(figsize=(9, 4.5))
     ax.bar(xs - .18, comparison.student_candidate_macro_f1, width=.36, label='Candidate Macro F1', color='#27798c')
@@ -67,30 +80,35 @@ def generate_report(result_root, artifacts, config):
     ax.set_xlabel('Actual trial number'); ax.set_ylabel('Candidate Macro F1'); ax.set_title('Bayesian search on training trip folds'); ax.legend()
     fig.tight_layout(); fig.savefig(plots / 'bayesian_search.png'); plt.close(fig)
     student = pd.read_csv(result_root / 'student_test_per_trip.csv')
-    fig, axes = plt.subplots(1, 5, figsize=(15, 3.5))
-    for ax, name in zip(axes, MODEL_NAMES):
+    if has_lightgbm:
+        lightgbm_student = pd.read_csv(lightgbm_root / 'student_classifier_per_trip.csv')
+        lightgbm_student['model'] = 'lightgbm'
+        student = pd.concat([student, lightgbm_student], ignore_index=True)
+    fig, axes = plt.subplots(2, 3, figsize=(11, 6.5))
+    for ax, name in zip(axes.flat, names):
         rr = student[student.model == name]
         matrix = np.array([[rr.tn.sum(), rr.fp.sum()], [rr.fn.sum(), rr.tp.sum()]], dtype=int)
         ax.imshow(matrix, cmap='Blues')
         for i in range(2):
             for j in range(2): ax.text(j, i, f'{matrix[i,j]:,}', ha='center', va='center', color='white' if matrix[i,j] > matrix.max() / 2 else 'black')
         ax.set_title(DISPLAY[name], fontsize=9); ax.set_xticks([0, 1], ['Nonmatch', 'Match'], fontsize=8); ax.set_yticks([0, 1], ['Nonmatch', 'Match'], fontsize=8); ax.set_xlabel('Predicted')
-    axes[0].set_ylabel('Derived label'); fig.suptitle('Student-testing candidate confusion matrices (threshold 0.5)'); fig.tight_layout(); fig.savefig(plots / 'confusion_matrices.png'); plt.close(fig)
+    axes[0, 0].set_ylabel('Derived label'); fig.suptitle('Student-testing candidate confusion matrices (threshold 0.5)'); fig.tight_layout(); fig.savefig(plots / 'confusion_matrices.png'); plt.close(fig)
     fig, ax = plt.subplots(figsize=(9, 4.5))
     ax.bar(xs - .18, comparison.cv_training_s, width=.36, label='Five CV fits combined', color='#27798c')
-    ax.bar(xs + .18, comparison.final_training_s, width=.36, label='Final untuned fit', color='#efb759')
+    ax.bar(xs + .18, comparison.final_training_s, width=.36, label='Final evaluated fit', color='#efb759')
     ax.set_xticks(xs, labels); ax.set_ylabel('Seconds'); ax.set_title('Measured estimator fitting time'); ax.legend()
     fig.tight_layout(); fig.savefig(plots / 'training_times.png'); plt.close(fig)
 
     # Explicitly sampled resubstitution diagnostic: not a validation score.
     diagnostic_path = result_root / 'training_diagnostics.json'
     diagnostics = json.loads(diagnostic_path.read_text()) if diagnostic_path.exists() else {}
-    if diagnostics.get('signature') != selected['signature']:
+    if diagnostics.get('signature') != selected['signature'] or any(name not in diagnostics.get('models', {}) for name in names):
         x, y, _ = training_matrix(manifest['train'], config['training']['max_observations_per_trip'])
         index = np.unique(np.linspace(0, len(y) - 1, min(10000, len(y))).astype(int))
         diagnostics = {'signature': selected['signature'], 'candidate_rows_sampled': len(index), 'metric': 'pooled binary Macro F1 on evenly spaced rows of the exact fitting matrix; resubstitution, not held-out', 'models': {}}
-        for name in MODEL_NAMES:
-            bundle = joblib.load(artifacts / f'{name}.joblib')
+        for name in names:
+            bundle_path = artifacts.parent / 'lightgbm/lightgbm.joblib' if name == 'lightgbm' else artifacts / f'{name}.joblib'
+            bundle = joblib.load(bundle_path)
             with threadpool_limits(limits=config['threads']):
                 probability = positive_scores(bundle['model'], x[index])
             diagnostics['models'][name] = float(f1_score(y[index], probability >= .5, labels=[0, 1], average='macro', zero_division=0))
@@ -118,20 +136,20 @@ def generate_report(result_root, artifacts, config):
         'The offline aligner considers up to eight route occurrences per observation, scores geometric/heading compatibility and backtracks an ordered path through reference progress. Repeated arc occurrences are preserved. Large GPS gaps and infeasible progress cause explicit resets; reference discontinuities are kept as separate chunks. Eligibility requires a reference distance at most 50 m, an emission margin at least 0.15, local consistency and distance from reference-break endpoints. Post-initial resets are excluded. These are fixed provisional heuristics, not validated confidence probabilities. Per-point decisions are saved in `alignment_audits/` for manual review.',
         '## Training and evaluation protocol',
         f'The five fixed group folds each hold out 16 complete training trips and fit on the remaining 64. Up to {config["training"]["max_observations_per_trip"]} eligible, candidate-covered observations per training trip are selected deterministically; all their candidates are retained. Each final untuned model fits {int(baseline.training_observations):,} observations and {int(baseline.training_candidate_rows):,} candidate rows drawn from all 80 trips. This is a laptop-budget experiment, not fitting every available GPS observation. CV evaluates up to {config["training"]["cv_validation_observations_per_trip"]} eligible observations per validation trip; student testing evaluates all eligible observations. Candidate misses remain observation-level errors. There is no observation weighting or class resampling after this group sampling.',
-        'StandardScaler is fit only inside each training fold for Logistic Regression and KNN. The tree estimators use the same unscaled feature matrix. Histogram Gradient Boosting internal early stopping is disabled. Candidate binary metrics use labels [nonmatch, match] and threshold 0.5; candidate metrics are averaged by trip. Top-1 accuracy is pooled across eligible observations. Folds and all sampling rules are identical across models. Model selection and the Bayesian objective use only training CV; student testing is the permitted development comparison. No evaluator-testing data was supplied or used.',
-        '## Five model comparison',
+        'StandardScaler is fit only inside each training fold for Logistic Regression and KNN. The tree estimators use the same unscaled feature matrix. Histogram Gradient Boosting internal early stopping is disabled. Candidate binary metrics use labels [nonmatch, match] and threshold 0.5; candidate metrics are averaged by trip. Top-1 accuracy is pooled across eligible observations. Folds and all sampling rules are identical across models. Model selection and the Bayesian objective use only training CV; student testing is the permitted development comparison.',
+        '## Six-model comparison',
         md_table(['Model', 'Family', 'CV candidate F1', 'Student precision', 'Student recall', 'Student F1', 'Student Top-1', 'Binary log loss', 'Classifier seconds'], rows),
         'CV values are fold means with standard deviation. Precision, recall and F1 are binary candidate Macro metrics; they are not arc-class Macro F1. Classifier seconds cover the ten student-testing trips\' eligible candidate matrices, excluding raw-file loading, candidates, features and decoding. Log loss is binary candidate loss, not normalized observation loss. Route continuity is pending Member 3\'s integration and is not estimated here.',
         '![Cross-validation comparison](plots/cv_macro_f1.png)',
         '![Student-testing comparison](plots/student_test_comparison.png)',
         '![Log loss and inference](plots/log_loss_and_inference.png)',
     ]
-    for name in MODEL_NAMES:
+    for name in names:
         r = comparison.loc[name]
         sections.extend([
             '## ' + DISPLAY[name],
             RATIONALE[name],
-            '**Initial configuration:** `' + json.dumps(DEFAULTS[name], sort_keys=True) + '`. Random seed 42 applies where supported; compute threads are limited to four.',
+            '**Evaluated configuration:** `' + json.dumps(parameters[name], sort_keys=True) + '`. Random seed 42 applies where supported; compute threads are limited to four.',
             '**Objective:** ' + OBJECTIVE[name],
             f'**Measured results:** CV candidate Macro F1 {r.cv_macro_f1_mean:.4f} +/- {r.cv_macro_f1_std:.4f}; student-testing precision {r.student_candidate_macro_precision:.4f}, recall {r.student_candidate_macro_recall:.4f}, candidate Macro F1 {r.student_candidate_macro_f1:.4f}, Top-1 {r.student_top1_accuracy:.4f} and binary log loss {r.student_candidate_log_loss:.4f}. Combined five-fold fitting took {r.cv_training_s:.3f} s; final fitting took {r.final_training_s:.3f} s; student classifier scoring took {r.student_model_inference_s:.4f} s on this machine.',
             f'**Fit/generalisation diagnostic:** pooled candidate Macro F1 on {diagnostics["candidate_rows_sampled"]:,} sampled rows of the exact training matrix is {diagnostics["models"][name]:.4f}. This resubstitution statistic is optimistic and has a different aggregation from the trip-macro held-out scores. The fold standard deviation is {r.cv_macro_f1_std:.4f}; inspect per-trip results rather than attributing the difference solely to overfitting. These diagnostics do not establish whether the model has exhausted its capacity or generalises to independently labelled routes.' + (' KNN queries include the fitted examples themselves in this diagnostic, so near-perfect training agreement can reflect interpolation.' if name == 'distance_weighted_knn' else ''),
@@ -169,5 +187,9 @@ def generate_report(result_root, artifacts, config):
         verified = json.loads(verification_path.read_text())
         timings = [r['end_to_end_inference_s'] for r in verified['trips']]
         sections.extend(['## Saved bundle verification', f'The saved final bundle was loaded and run from raw GPS/nodes/arcs on all {verified["verified_trips"]} student-testing trips, covering {sum(r["observations"] for r in verified["trips"]):,} observations. Raw-input scores matched cached-feature scores. Measured per-trip end-to-end classifier pipeline latency ranged from {min(timings):.3f} to {max(timings):.3f} seconds, excluding HMM and the network/UI. The raw prediction path did not read reference routes. Full score and assignment exports are in `handoff_predictions/`; these are development diagnostics, not application lookup outputs.'])
+    from .lightgbm_reporting import generate
+    boosted_comparison = generate(Path(__file__).resolve().parents[1])
+    if boosted_comparison:
+        sections.insert(sections.index('## Integration and limitations'), boosted_comparison)
     (result_root / 'member2_report.md').write_text('\n\n'.join(sections) + '\n', encoding='utf-8')
     print('Generated report and six measured-result figures:', result_root / 'member2_report.md', flush=True)
