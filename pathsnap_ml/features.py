@@ -31,6 +31,13 @@ def make_features(trip, geometry, candidates):
     projection_fraction, distance_rank, search_radius_m. IDs are metadata,
     never features. Candidate rows must be contiguous by observation.
     """
+    required = {
+        'observation_id', 'arc_id', 'distance_m',
+        'projection_fraction', 'distance_rank', 'search_radius_m',
+    }
+    missing = required.difference(candidates.columns)
+    if missing:
+        raise ValueError(f'Missing candidate columns: {sorted(missing)}')
     obs = candidates.observation_id.to_numpy(dtype=int)
     arc = candidates.arc_id.to_numpy(dtype=int)
     if len(obs) and (np.any(np.diff(obs) < 0) or obs.min() < 0 or obs.max() >= len(trip.track) or arc.min() < 0 or arc.max() >= len(trip.arcs)):

@@ -48,3 +48,10 @@ def create_map(prediction, destination, reference=None):
     destination.parent.mkdir(parents=True, exist_ok=True)
     m.save(str(destination))
     return destination
+
+def extract_arc_geometries(trip):
+    """Return arc_id -> [(lon, lat), ...] for road-map rendering."""
+    return {
+        arc_id: trip.nodes[trip.arcs[arc_id]].tolist()
+        for arc_id in range(len(trip.arcs))
+    }

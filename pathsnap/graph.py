@@ -95,6 +95,19 @@ class RoadGraph:
                 result[i, j] = self.connection(arc_a, fraction_a, arc_b, fraction_b, limit, jitter_m)[0]
         return result
 
+    def shortest_network_distance(
+        self, arc_from, proj_from, arc_to, proj_to
+    ):
+        """Return directed shortest-path distance in metres, or None if unreachable."""
+        distance, _ = self.connection(
+            arc_from,
+            proj_from,
+            arc_to,
+            proj_to,
+            limit=5000.0,
+            jitter_m=8.0,
+        )
+        return distance if math.isfinite(distance) else None
 
 def movement_limit(dt, config):
     return min(config['maximum_path_m'], config['max_speed_mps'] * dt + config['distance_slack_m'])
