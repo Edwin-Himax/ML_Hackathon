@@ -1,0 +1,15 @@
+numpy
+pandas
+scipy
+scikit-learn
+shapely
+pyproj
+networkx
+fastapi
+uvicorn[standard]
+pydantic
+requests
+streamlit
+folium
+streamlit-folium
+joblib

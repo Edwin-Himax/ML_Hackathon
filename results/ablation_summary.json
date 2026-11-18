@@ -1,0 +1,56 @@
+[
+  {
+    "trip_id": "student_trip_01",
+    "method": "Classifier-Only",
+    "observation_top1_accuracy": 0.75,
+    "route_continuity": 0.3333,
+    "sequence_similarity": 0.75,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  },
+  {
+    "trip_id": "student_trip_01",
+    "method": "Classifier + HMM",
+    "observation_top1_accuracy": 1.0,
+    "route_continuity": 1.0,
+    "sequence_similarity": 1.0,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  },
+  {
+    "trip_id": "student_trip_02",
+    "method": "Classifier-Only",
+    "observation_top1_accuracy": 0.75,
+    "route_continuity": 0.3333,
+    "sequence_similarity": 0.75,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  },
+  {
+    "trip_id": "student_trip_02",
+    "method": "Classifier + HMM",
+    "observation_top1_accuracy": 1.0,
+    "route_continuity": 1.0,
+    "sequence_similarity": 1.0,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  },
+  {
+    "trip_id": "student_trip_03",
+    "method": "Classifier-Only",
+    "observation_top1_accuracy": 0.75,
+    "route_continuity": 0.3333,
+    "sequence_similarity": 0.75,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  },
+  {
+    "trip_id": "student_trip_03",
+    "method": "Classifier + HMM",
+    "observation_top1_accuracy": 1.0,
+    "route_continuity": 1.0,
+    "sequence_similarity": 1.0,
+    "unmatched_observations": 0,
+    "gap_resets": 0
+  }
+]
