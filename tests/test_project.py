@@ -76,6 +76,18 @@ class GraphTests(unittest.TestCase):
         unreachable = graph.shortest_network_distance(0, .2, 2, .8)
         self.assertIsNone(unreachable)
 
+    def test_shortest_path_cache_reuse(self):
+        _, _, graph = tiny_graph()
+
+        graph.search(0, 500)
+        searches_before = graph.searches
+        hits_before = graph.cache_hits
+
+        graph.search(0, 400)
+
+        self.assertEqual(graph.searches, searches_before)
+        self.assertEqual(graph.cache_hits, hits_before + 1)
+
 
 class DecoderTests(unittest.TestCase):
     def build(self, observations, arcs, fractions, probabilities, timestamps=None):
