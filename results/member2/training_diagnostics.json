@@ -1,0 +1,12 @@
+{
+  "signature": "380ea0a3d0feb1720099f20f5f3434f1406aa1d949e8869b2937f71cd991636e",
+  "candidate_rows_sampled": 10000,
+  "metric": "pooled binary Macro F1 on evenly spaced rows of the exact fitting matrix; resubstitution, not held-out",
+  "models": {
+    "logistic_regression": 0.8863017153539479,
+    "distance_weighted_knn": 1.0,
+    "decision_tree": 0.9120764594569065,
+    "random_forest": 0.9192619625820198,
+    "hist_gradient_boosting": 0.9112022386202088
+  }
+}

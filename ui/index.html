@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="PathSnap reconstructs road routes from noisy GPS observations.">
+  <title>PathSnap · Route explorer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b776f'/%3E%3Cpath d='M11 29V18a7 7 0 0 1 14 0v5a4 4 0 0 0 4 4' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<svg class="symbols" xmlns="http://www.w3.org/2000/svg"><defs>
+  <symbol id="i-route" viewBox="0 0 24 24"><path d="M6 20V9a5 5 0 0 1 10 0v6a3 3 0 0 0 3 3"/><circle cx="6" cy="20" r="2"/><circle cx="19" cy="18" r="2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m8 0h5v-5M8 8h8v8H8Z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="16" cy="17" r="3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 14 0Z"/><circle cx="12" cy="10" r="2"/></symbol>
+</defs></svg>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="PathSnap home"><span class="brand-mark"><svg><use href="#i-route"/></svg></span>PathSnap<span class="brand-tag">ROUTE INTELLIGENCE</span></a>
+  <nav aria-label="Main navigation"><span class="nav-current">Route explorer</span><button class="text-button" id="how-button">How it works</button></nav>
+  <div class="header-right"><span class="connection" id="connection"><i></i>Connecting</span><button class="icon-button" id="settings-button" aria-label="API connection settings"><svg><use href="#i-settings"/></svg></button></div>
+</header>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-top"><div class="eyebrow">YOUR DATASET</div><div class="sidebar-title"><h2 id="partition-title">Student testing</h2><span class="count-pill" id="trip-count">—</span></div><p>Explore a trip. Recover its route.</p></div>
+    <label class="search"><svg><use href="#i-search"/></svg><input id="trip-search" type="search" placeholder="Find a trip…" aria-label="Find a trip"></label>
+    <div class="trip-list" id="trip-list" aria-label="Trips"><div class="list-empty">Connecting to the API…</div></div>
+    <div class="sidebar-bottom"><span class="tiny-dot"></span><div><strong>Live inference</strong><p>Every run calls the model and decoder.</p></div></div>
+  </aside>
+  <main>
+    <div class="page-heading"><div><div class="eyebrow">FROM NOISY POINTS TO CONNECTED ROADS</div><h1>Find the way forward.</h1><p>See where the GPS wandered. Reconstruct the road it followed.</p></div><button class="secondary" id="export-button" disabled><svg><use href="#i-down"/></svg>Export result</button></div>
+    <div class="mobile-trip"><label for="trip-select">Trip</label><select id="trip-select"></select></div>
+    <div class="error-banner" id="error" role="alert" hidden></div>
+    <section class="stats-grid" aria-label="Trip metrics">
+      <article class="stat"><div class="stat-label">Point agreement <span class="stat-tag">HMM</span></div><div class="stat-value" id="metric-accuracy">—</div><div class="stat-note" id="metric-accuracy-note">Waiting for a prediction</div></article>
+      <article class="stat"><div class="stat-label">Route continuity <span class="metric-icon">↗</span></div><div class="stat-value" id="metric-continuity">—</div><div class="stat-note">Feasible consecutive road positions</div></article>
+      <article class="stat"><div class="stat-label">Reconstructed distance <svg><use href="#i-route"/></svg></div><div class="stat-value" id="metric-distance">—</div><div class="stat-note" id="metric-distance-note">Connected route pieces</div></article>
+      <article class="stat"><div class="stat-label">Pipeline time <svg><use href="#i-clock"/></svg></div><div class="stat-value" id="metric-time">—</div><div class="stat-note">GPS → candidates → model → Viterbi</div></article>
+    </section>
+    <section class="workspace">
+      <div class="map-panel">
+        <div class="panel-heading"><div><div class="map-title"><h2 id="map-title">Route preview</h2><span class="chip" id="map-chip">READY</span></div><p id="map-subtitle">Select a trip to start exploring</p></div><button class="primary" id="run-button" disabled><svg><use href="#i-play"/></svg><span>Reconstruct route</span></button></div>
+        <div class="map-area" id="map-area">
+          <canvas id="map" tabindex="0" aria-label="Interactive route map. Drag to pan. Use mouse wheel or plus and minus buttons to zoom. Arrow keys pan; plus and minus keys zoom."></canvas>
+          <div class="map-empty" id="map-empty"><span class="empty-mark"><svg><use href="#i-route"/></svg></span><h3>Your next route starts here</h3><p>Connect to the API and select a trip.</p></div>
+          <div class="map-controls"><button aria-label="Zoom in" id="zoom-in">+</button><button aria-label="Zoom out" id="zoom-out">−</button><button aria-label="Fit route to view" id="fit-button"><svg><use href="#i-fit"/></svg></button></div>
+          <div class="north"><span>↑</span>N</div>
+          <div class="map-legend"><label><input id="layer-roads" type="checkbox" checked><span class="legend-line roads"></span>Roads</label><label><input id="layer-gps" type="checkbox" checked><span class="legend-line gps"></span>Raw GPS</label><label><input id="layer-classifier" type="checkbox"><span class="legend-line classifier"></span>Classifier</label><label><input id="layer-hmm" type="checkbox" checked><span class="legend-line hmm"></span>HMM route</label></div>
+          <div class="map-scale" id="map-scale">Vector map · no external tiles</div><div class="map-tooltip" id="map-tooltip" hidden></div>
+          <div class="busy-overlay" id="busy" hidden><div class="spinner"></div><strong>Reconstructing the route</strong><span>Matching GPS observations to the road network…</span></div>
+        </div>
+        <div class="timeline"><button class="play-toggle" id="play-button" aria-label="Play trajectory" disabled><svg><use href="#i-play"/></svg></button><div class="timeline-body"><div class="timeline-label"><strong id="observation-label">Observation —</strong><span id="observation-time">—</span></div><input id="timeline" type="range" min="0" max="0" value="0" aria-label="GPS observation" disabled></div><span class="timeline-total" id="timeline-total">— points</span></div>
+      </div>
+      <aside class="insights">
+        <div class="insight-heading"><div class="eyebrow">A CLEARER PICTURE</div><h2>Route insights</h2></div>
+        <div class="comparison-heading"><span>Measure</span><span>Classifier</span><span>+ HMM</span></div>
+        <div class="comparison-row"><span>Point agreement</span><strong id="compare-classifier">—</strong><strong id="compare-hmm">—</strong></div>
+        <div class="comparison-row"><span>Continuity</span><strong id="continuity-classifier">—</strong><strong id="continuity-hmm">—</strong></div>
+        <div class="comparison-row"><span>Sequence match</span><strong id="sequence-classifier">—</strong><strong id="sequence-hmm">—</strong></div>
+        <div class="label-notice" id="label-notice"><span class="notice-icon">i</span><div><strong>Reference agreement</strong><p id="label-notice-text">Metrics appear after reconstruction. Reference labels stay on the server.</p></div></div>
+        <div class="quality"><h3>Along the way</h3><div><span>Unmatched observations</span><strong id="unmatched">—</strong></div><div><span>Sequence restarts</span><strong id="resets">—</strong></div><div><span>Candidate misses</span><strong id="miss-rate">—</strong></div><div><span>Network components</span><strong id="components">—</strong></div><p id="break-notice">GPS gaps and disconnected roads are shown as route breaks.</p></div>
+        <div class="run-info"><div><span class="tiny-dot"></span><strong id="run-state">Ready when you are</strong></div><p id="run-info-text">Select a trip to inspect its reconstructed route.</p><a id="api-docs" href="/docs" target="_blank" rel="noopener">Explore the API <span>↗</span></a></div>
+      </aside>
+    </section>
+    <footer><span>PathSnap <b>·</b> Distributed map matching</span><span id="footer-mode">Development dataset · server-side references</span></footer>
+  </main>
+</div>
+<dialog id="settings-dialog"><form id="settings-form"><div class="eyebrow">TWO LAPTOPS. ONE ROUTE.</div><h2>Connect to your API</h2><p>Enter the address of Laptop 1. Keep the API running there while using this interface on Laptop 2.</p><label for="api-url">API address</label><input id="api-url" type="url" required placeholder="http://192.168.1.10:8000"><p class="dialog-help">For a local run, use http://127.0.0.1:8000.</p><div class="dialog-actions"><button type="button" class="secondary" id="settings-cancel">Cancel</button><button type="submit" class="primary">Connect <svg><use href="#i-arrow"/></svg></button></div></form></dialog>
+<dialog id="how-dialog"><div class="eyebrow">THE PATHSNAP PIPELINE</div><h2>A route is more than a nearest road.</h2><p>GPS measurements can drift onto parallel streets or jump between disconnected roads. PathSnap considers nearby road positions, scores them with a trained classifier, then uses directed road connectivity and movement to reconstruct a coherent sequence.</p><ol><li><strong>Find candidates</strong><span>Nearby directed road segments for each GPS point.</span></li><li><strong>Score the fit</strong><span>Distance, direction, motion and road context.</span></li><li><strong>Connect the route</strong><span>HMM/Viterbi balances those scores with feasible travel.</span></li></ol><p>Large gaps and impossible transitions create visible breaks. Aggregate reference metrics are computed separately on the server.</p><button class="primary" id="how-close">Back to exploring <svg><use href="#i-arrow"/></svg></button></dialog>
+<div class="sr-only" id="live-status" aria-live="polite"></div>
+</body></html>

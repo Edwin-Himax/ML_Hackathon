@@ -1,0 +1,29 @@
+{
+  "partitions": {
+    "student_test": {
+      "trips": 10,
+      "observations": 19160,
+      "missing_rows": 0,
+      "invalid_coordinates": 0,
+      "non_increasing_timestamps": 0,
+      "zero_length_arcs": 6,
+      "maximum_gap_s": 210.0,
+      "gps_points_min": 262,
+      "gps_points_median": 1420.0,
+      "gps_points_max": 3958
+    },
+    "train": {
+      "trips": 80,
+      "observations": 208417,
+      "missing_rows": 0,
+      "invalid_coordinates": 0,
+      "non_increasing_timestamps": 0,
+      "zero_length_arcs": 100,
+      "maximum_gap_s": 153064.0,
+      "gps_points_min": 361,
+      "gps_points_median": 1529.0,
+      "gps_points_max": 19313
+    }
+  },
+  "one_second_fraction": 0.9667981027487285
+}

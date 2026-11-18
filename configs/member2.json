@@ -1,0 +1,33 @@
+{
+  "seed": 42,
+  "folds": 5,
+  "threads": 4,
+  "candidate": {
+    "radius_m": 50.0,
+    "fallback_radii_m": [100.0, 250.0],
+    "max_candidates": 8,
+    "index_spacing_m": 30.0
+  },
+  "alignment": {
+    "method": "provisional_ordered_route_v1",
+    "nearest_occurrences": 8,
+    "max_label_distance_m": 50.0,
+    "min_emission_margin": 0.15,
+    "gap_reset_s": 60.0,
+    "break_exclusion_m": 15.0
+  },
+  "training": {
+    "max_observations_per_trip": 200,
+    "cv_validation_observations_per_trip": 400,
+    "student_test_observations_per_trip": null,
+    "candidate_threshold": 0.5
+  },
+  "bayesian": {
+    "trials": 12,
+    "initial_random_trials": 4,
+    "acquisition_candidates": 1024,
+    "objective": "mean_trip_grouped_cv_candidate_macro_f1",
+    "acquisition": "expected_improvement",
+    "surrogate": "GaussianProcessRegressor_Matern_2.5"
+  }
+}

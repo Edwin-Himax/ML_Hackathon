@@ -1,0 +1,546 @@
+{
+  "train": [
+    {
+      "trip_id": "00000001",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000001_594a64993f5a6545.npz",
+      "fingerprint": "594a64993f5a6545496bead2cd8d9eb78fb2d0f9411991f9fa14fd4922591318"
+    },
+    {
+      "trip_id": "00000002",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000002_f066c9147eaafdab.npz",
+      "fingerprint": "f066c9147eaafdab013af17d88daea4ba7fcfb4b1e62531311ad404a187b9efa"
+    },
+    {
+      "trip_id": "00000003",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000003_83df8ce24e5b6ba2.npz",
+      "fingerprint": "83df8ce24e5b6ba2457f8b7b95ea547ab8286f5cf9eaaa5e859f1888ef7e9aae"
+    },
+    {
+      "trip_id": "00000004",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000004_b3ea4fca6200fa05.npz",
+      "fingerprint": "b3ea4fca6200fa054c8295a65133d411e83ede9191ddca79f20f6b7810763f39"
+    },
+    {
+      "trip_id": "00000005",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000005_6d2dcab5976c1e83.npz",
+      "fingerprint": "6d2dcab5976c1e83a5915e190668598fcc62a76a9bc24d5b1b8f5ddd1bfc2df6"
+    },
+    {
+      "trip_id": "00000006",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000006_d18b6e2bbc23151f.npz",
+      "fingerprint": "d18b6e2bbc23151fd578464f9acfbae18aa2aee950f171b537b87b6b18b4134a"
+    },
+    {
+      "trip_id": "00000008",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000008_59e0a3c5dc4618ba.npz",
+      "fingerprint": "59e0a3c5dc4618bacc363d50e6b822350a9969145d75d7c4ae24c8dc906fa303"
+    },
+    {
+      "trip_id": "00000010",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000010_d11ecc537f7b762d.npz",
+      "fingerprint": "d11ecc537f7b762d57b7a9cc7851e9fd1565b663fc62d587fa367717466cf7f9"
+    },
+    {
+      "trip_id": "00000011",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000011_1e64c718f18f3b67.npz",
+      "fingerprint": "1e64c718f18f3b674351dd3216a4092bb1c7ca638c63e22ab20fba2572424742"
+    },
+    {
+      "trip_id": "00000012",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000012_ac2206159d95d080.npz",
+      "fingerprint": "ac2206159d95d0803e03a255a5c31975423cec52150d5e3b61e098bd5c9a5da8"
+    },
+    {
+      "trip_id": "00000013",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000013_3d450778a89da185.npz",
+      "fingerprint": "3d450778a89da18547260183b1a3b9b7321f40a68ca8fbab1ae8100f695146d5"
+    },
+    {
+      "trip_id": "00000014",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000014_6b0764ce6f708e51.npz",
+      "fingerprint": "6b0764ce6f708e51569fef27e8dd79e66480c264ea4dc91e9b0a0afe59b369fc"
+    },
+    {
+      "trip_id": "00000016",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000016_56848012518a3f91.npz",
+      "fingerprint": "56848012518a3f913432f44d735b283c154fe6979bff8d466e4a5a6bddddab60"
+    },
+    {
+      "trip_id": "00000018",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000018_0d16851239385db8.npz",
+      "fingerprint": "0d16851239385db8b993b089605073609db9950434bf40ae938f2fe3268b37fb"
+    },
+    {
+      "trip_id": "00000019",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000019_203ba6939d971df0.npz",
+      "fingerprint": "203ba6939d971df0dfef4ec0e39fef947589336a8e63244fd295414e7e699386"
+    },
+    {
+      "trip_id": "00000020",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000020_ec6f9a957d68007c.npz",
+      "fingerprint": "ec6f9a957d68007ce57a2d60c77f8780ceb0ce67cc194cf32d13e36fe9503588"
+    },
+    {
+      "trip_id": "00000021",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000021_7c3ef8e77e7dd365.npz",
+      "fingerprint": "7c3ef8e77e7dd365aee27dd10c8e1679fb269dac9157e13065a0e1e6205da22f"
+    },
+    {
+      "trip_id": "00000022",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000022_bb20f2ab4c22a665.npz",
+      "fingerprint": "bb20f2ab4c22a66569cefa79f344eceb2bea3640342c7d63782bf6927171ac00"
+    },
+    {
+      "trip_id": "00000024",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000024_64180f8466ad9802.npz",
+      "fingerprint": "64180f8466ad980200c63119bf797b02793df3c4be25e34fa19acfec4b805dcf"
+    },
+    {
+      "trip_id": "00000025",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000025_e9152cd477822590.npz",
+      "fingerprint": "e9152cd477822590327f6f74188ebc71549e6dcf940ab214eb820da36a2eea6a"
+    },
+    {
+      "trip_id": "00000026",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000026_bdf60260e2c224d2.npz",
+      "fingerprint": "bdf60260e2c224d2bc886b6d0f8ac091b6a922d8df9220aaeb68d82f6b22eed7"
+    },
+    {
+      "trip_id": "00000027",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000027_9fbbbb3730f87689.npz",
+      "fingerprint": "9fbbbb3730f8768926feb8887c0e014439685c6ab9c0b75e38d840441b5b3665"
+    },
+    {
+      "trip_id": "00000028",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000028_91994e69284e93dd.npz",
+      "fingerprint": "91994e69284e93ddb6986591192550b5a0c3531cf7debcd9232594416c9bf1d3"
+    },
+    {
+      "trip_id": "00000029",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000029_ec6df8360082cf12.npz",
+      "fingerprint": "ec6df8360082cf126d58340ec58af4693fa3c1facc9a0ae3a33ffc63a47f0430"
+    },
+    {
+      "trip_id": "00000031",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000031_b141e9ac91af9f9d.npz",
+      "fingerprint": "b141e9ac91af9f9d3460d617d7e972ebc515c5564c7d4db8d4f5e78439142816"
+    },
+    {
+      "trip_id": "00000032",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000032_f50bc570a2533d42.npz",
+      "fingerprint": "f50bc570a2533d42aafe7f8be21014dc6ec6ff81981b4f2fc167c41b8d9e5234"
+    },
+    {
+      "trip_id": "00000033",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000033_9484188b932988c1.npz",
+      "fingerprint": "9484188b932988c1a13002d5c2891cb5eae36a1462bf000e7edddfebae39666e"
+    },
+    {
+      "trip_id": "00000034",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000034_db2df708dc33194a.npz",
+      "fingerprint": "db2df708dc33194a87991893d21101d8cc61a4214152a57cc1278fa16bf7e4b7"
+    },
+    {
+      "trip_id": "00000035",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000035_e23e3691e0881676.npz",
+      "fingerprint": "e23e3691e08816766035734d0cbd1477b8f4eef3a2ec99c1c743f736c1c30d5c"
+    },
+    {
+      "trip_id": "00000036",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000036_01e17a0418a7e5e4.npz",
+      "fingerprint": "01e17a0418a7e5e485c2209224903a807e6e4a67a19d0a60a04f9b00b656a5a7"
+    },
+    {
+      "trip_id": "00000037",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000037_21ca6d07b2dbcac5.npz",
+      "fingerprint": "21ca6d07b2dbcac58f36082c27ffdcae775eef10c811f194ed8b96914b538f33"
+    },
+    {
+      "trip_id": "00000038",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000038_4f9659f3fab96518.npz",
+      "fingerprint": "4f9659f3fab9651825cdf1ee65f46611b6586ea2fa7cc9146d160161dc4f9141"
+    },
+    {
+      "trip_id": "00000039",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000039_49d0f3cd89d5d5d0.npz",
+      "fingerprint": "49d0f3cd89d5d5d0d38541cb878e728de030d21336d7b1fe829bb4bd29b1a8ba"
+    },
+    {
+      "trip_id": "00000041",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000041_ad82d7daab4c2cd9.npz",
+      "fingerprint": "ad82d7daab4c2cd918b69f749a4ebeff0cc2de1008fbc5561dcdaf7578a65f7c"
+    },
+    {
+      "trip_id": "00000042",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000042_75897c6b585363b1.npz",
+      "fingerprint": "75897c6b585363b1a5e4599cd41fe4e2821c09b885e88972ce11a7596fcfecdc"
+    },
+    {
+      "trip_id": "00000043",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000043_03663053353e8526.npz",
+      "fingerprint": "03663053353e85262bbae7eeca32d5280fb499eb4cdbcd3f5ada3ea39b8d32d9"
+    },
+    {
+      "trip_id": "00000044",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000044_f83d1c3dfa44cba7.npz",
+      "fingerprint": "f83d1c3dfa44cba70e91c3eb726c460bba1fc2593e32ec7a7e9da64e9537bf2a"
+    },
+    {
+      "trip_id": "00000045",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000045_a15545d2beecab1f.npz",
+      "fingerprint": "a15545d2beecab1f4d5f5e83735f6443399a30b58ec424a4e15cfbfd27db2998"
+    },
+    {
+      "trip_id": "00000046",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000046_1d2190321f385c0a.npz",
+      "fingerprint": "1d2190321f385c0addb8ceb9435aa5dbba539e6f9b62f867162898697a6c65f0"
+    },
+    {
+      "trip_id": "00000047",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000047_0de2c57775e2eb42.npz",
+      "fingerprint": "0de2c57775e2eb42d1ef351c7294501a7abe33ab53383bb0e559622dea39f5c9"
+    },
+    {
+      "trip_id": "00000048",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000048_e1d4c872a7d7a309.npz",
+      "fingerprint": "e1d4c872a7d7a3094ac55c6937297ae96a677d8a7bb0fd8dc557f9a1009f0a17"
+    },
+    {
+      "trip_id": "00000050",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000050_b11ef2509107caa7.npz",
+      "fingerprint": "b11ef2509107caa72a042a582c682595b7e9c9d45967ee693f8ef7ce16cda105"
+    },
+    {
+      "trip_id": "00000051",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000051_d9f26a3ea16fcb69.npz",
+      "fingerprint": "d9f26a3ea16fcb69003ddbc92137ed398a9f1a0b34d84431f386c3e3ac288db3"
+    },
+    {
+      "trip_id": "00000053",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000053_8fa3f41f0ce39e6a.npz",
+      "fingerprint": "8fa3f41f0ce39e6adcfb76636fa6a67f707a46e61481e93ae5b623728cdb2de4"
+    },
+    {
+      "trip_id": "00000054",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000054_987571c30f8fae7e.npz",
+      "fingerprint": "987571c30f8fae7e9a8c3dc09e11eaa33392fc89e8441bcbd117b2bced9a49de"
+    },
+    {
+      "trip_id": "00000055",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000055_c35b3f3e8b70bcba.npz",
+      "fingerprint": "c35b3f3e8b70bcba91bee9440ef63673ac5d56c52c8168e958c5c44bc268ae77"
+    },
+    {
+      "trip_id": "00000057",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000057_a517181eecdd97cd.npz",
+      "fingerprint": "a517181eecdd97cd0df3f846ebb30f1979346658aa025cb9bfc65fc949c349bc"
+    },
+    {
+      "trip_id": "00000058",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000058_a91947ff8ff49da7.npz",
+      "fingerprint": "a91947ff8ff49da73cde30d5c74979fcc7f3a6e6f74a95eb312c595fe7a13566"
+    },
+    {
+      "trip_id": "00000060",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000060_ae707c84c9d3c6a3.npz",
+      "fingerprint": "ae707c84c9d3c6a3b79f30fafc986756f767b294b2ba507f84fb14f2c91a2b05"
+    },
+    {
+      "trip_id": "00000061",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000061_754db907fda327bb.npz",
+      "fingerprint": "754db907fda327bbad3fd34fb2b733f4942ab96987b79c88ff75296811e127a3"
+    },
+    {
+      "trip_id": "00000062",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000062_b319f54bd52cd98e.npz",
+      "fingerprint": "b319f54bd52cd98e151bd134e9581e0eeba71d077b0b9dd5ddca1f4c4524def8"
+    },
+    {
+      "trip_id": "00000063",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000063_9b1a8bf927c4f12f.npz",
+      "fingerprint": "9b1a8bf927c4f12fa74fd0f7050a55281311c6c4cbe9245aa3b71de320f6af7e"
+    },
+    {
+      "trip_id": "00000064",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000064_baa22126fe98bb8d.npz",
+      "fingerprint": "baa22126fe98bb8dd8086caa1015ded91afea07de04a146a7545f5ae4774ac69"
+    },
+    {
+      "trip_id": "00000066",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000066_4b67756dabc85b6a.npz",
+      "fingerprint": "4b67756dabc85b6a24777268ea14f495f56ce5b6cd446d853787210b80ca72ec"
+    },
+    {
+      "trip_id": "00000068",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000068_bbd4497a9c917e78.npz",
+      "fingerprint": "bbd4497a9c917e78f8aeca65bf637b56f8e4245755de589dd6f5d04cd61b4008"
+    },
+    {
+      "trip_id": "00000069",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000069_258c0998a81be85e.npz",
+      "fingerprint": "258c0998a81be85e3b184c3cb7d5212b6176b661608a4423dec352785e035602"
+    },
+    {
+      "trip_id": "00000070",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000070_08073ad3d0a1add5.npz",
+      "fingerprint": "08073ad3d0a1add5176f1dc8c76db486162321597f32040dde5b0cf87b620ef5"
+    },
+    {
+      "trip_id": "00000071",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000071_6433ef1d843d1261.npz",
+      "fingerprint": "6433ef1d843d1261bd42b7c91f6d84c325242784fd01f5f1c82212f8dcd8e4f7"
+    },
+    {
+      "trip_id": "00000072",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000072_074f02b4659ed68b.npz",
+      "fingerprint": "074f02b4659ed68b8ad2df3838fe959075007e7f84d43cf0eb2dcca383b58949"
+    },
+    {
+      "trip_id": "00000074",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000074_3f1190a981bbadd7.npz",
+      "fingerprint": "3f1190a981bbadd7e2332c55d519fc319cb2ea7ee6c7cfbced5debea4eb53fcb"
+    },
+    {
+      "trip_id": "00000075",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000075_6c3973618fe0bb2d.npz",
+      "fingerprint": "6c3973618fe0bb2d638f07681b6d358ecce781e4999606ad68a8882c6d81758d"
+    },
+    {
+      "trip_id": "00000078",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000078_4555b2b3c8c2e50b.npz",
+      "fingerprint": "4555b2b3c8c2e50bfd3dc5085918d52810697d3aa4b5e46e39d02653a723ecc1"
+    },
+    {
+      "trip_id": "00000079",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000079_0357451d599c2885.npz",
+      "fingerprint": "0357451d599c288589420c7fe01aedaa243f5b01ddd1108be1fda2f06e89d2a0"
+    },
+    {
+      "trip_id": "00000080",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000080_db6417c9b2009376.npz",
+      "fingerprint": "db6417c9b2009376c0c14f72f040655016498bc48fd479b1fdf6bca25e56ee75"
+    },
+    {
+      "trip_id": "00000081",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000081_3615303b8362e27f.npz",
+      "fingerprint": "3615303b8362e27f3336e4a0b34040a20d42dde9dc1c0020beaa05f2f0511086"
+    },
+    {
+      "trip_id": "00000082",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000082_4d6105a04c6ada35.npz",
+      "fingerprint": "4d6105a04c6ada35162dfd61dd08a486beb14650958347f8dc5450bb4a3a1ebc"
+    },
+    {
+      "trip_id": "00000083",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000083_1d7e7e8a1ba01be1.npz",
+      "fingerprint": "1d7e7e8a1ba01be15e22fba51bde4131e91afe89016550443cc18cc80d212fa6"
+    },
+    {
+      "trip_id": "00000084",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000084_da51db3e7150167a.npz",
+      "fingerprint": "da51db3e7150167aa88122276fafee65175bd73d9be2f7d584c93b3c8421086a"
+    },
+    {
+      "trip_id": "00000085",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000085_1d941bc650d23f80.npz",
+      "fingerprint": "1d941bc650d23f8014598dd250f0c131ebab9bdec7e9791400b03145e6b9dc55"
+    },
+    {
+      "trip_id": "00000086",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000086_60a187533610265a.npz",
+      "fingerprint": "60a187533610265a1702bd840971dce5daaa568f0a5a64ac0e7b2cbee2df437c"
+    },
+    {
+      "trip_id": "00000088",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000088_f690998c8b229b6d.npz",
+      "fingerprint": "f690998c8b229b6de235727c28ca4b6a03b61ca455090cd507650f850c677522"
+    },
+    {
+      "trip_id": "00000089",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000089_3c383b5b964a3b7a.npz",
+      "fingerprint": "3c383b5b964a3b7a07984e164b691458c00053c00e64dcf1f2868ecdc31b1345"
+    },
+    {
+      "trip_id": "00000090",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000090_e46676333917d0be.npz",
+      "fingerprint": "e46676333917d0be43c003402de28fc9be8cca5511ba48c3bbbdf08188f2a74c"
+    },
+    {
+      "trip_id": "00000092",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000092_2217079d0d4e6937.npz",
+      "fingerprint": "2217079d0d4e69374dfdd2e010ccbe8a2c9d314b5b944e7bbb633e558ac0ea34"
+    },
+    {
+      "trip_id": "00000093",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000093_79ed834f4d694125.npz",
+      "fingerprint": "79ed834f4d694125c29b5aa7b32ca6e6f1522cc6bb2054b9152d7a0fc7fcb95b"
+    },
+    {
+      "trip_id": "00000095",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000095_26ef16e99344988e.npz",
+      "fingerprint": "26ef16e99344988efb00456ee6e22497df79ca42e5aba2aedc80c3ab09492bd5"
+    },
+    {
+      "trip_id": "00000096",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000096_94d904dd4e383a77.npz",
+      "fingerprint": "94d904dd4e383a77b64a0d64ca5b40262cba37a65692891a27b94ac5f3cb6a5b"
+    },
+    {
+      "trip_id": "00000097",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000097_6f00c1fa9c8f9107.npz",
+      "fingerprint": "6f00c1fa9c8f91071124a1d342c880e381fd57837daa77a9610bf8c7ee94e4bf"
+    },
+    {
+      "trip_id": "00000098",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000098_57ee4775bc414815.npz",
+      "fingerprint": "57ee4775bc414815bbfffdb93d20fb919087c60b0cc63f119a8d06ae7d151bc6"
+    },
+    {
+      "trip_id": "00000099",
+      "partition": "train",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\train_00000099_ec821cdbcd6cbfc8.npz",
+      "fingerprint": "ec821cdbcd6cbfc8e4cd98adddda61a4c73ee62bc81dcbb23ef4cf6d05705c16"
+    }
+  ],
+  "student_test": [
+    {
+      "trip_id": "00000000",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000000_c6fecdf2f1e70817.npz",
+      "fingerprint": "c6fecdf2f1e70817e0cf3e056eee23adc3ab5a477ac53e86fbe279c0cb416f22"
+    },
+    {
+      "trip_id": "00000007",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000007_55248058cdda1ef5.npz",
+      "fingerprint": "55248058cdda1ef5d7dc32d360020ed1e9e5aa90cde70d499f60fc8247f80264"
+    },
+    {
+      "trip_id": "00000009",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000009_c3ea912e47022d75.npz",
+      "fingerprint": "c3ea912e47022d7527467daf98cf9a4a7de7618e71bc0b12feeee85f07707d60"
+    },
+    {
+      "trip_id": "00000040",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000040_40dc14d4de556a8e.npz",
+      "fingerprint": "40dc14d4de556a8ea81589b2d072927681cd0c2935f721c459511bfa08797c23"
+    },
+    {
+      "trip_id": "00000052",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000052_6a74d4dac3445c24.npz",
+      "fingerprint": "6a74d4dac3445c249c0060f7c5032522ebd115fbd50cdb0189f7b868c33eebde"
+    },
+    {
+      "trip_id": "00000056",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000056_837f22111a0ea4c7.npz",
+      "fingerprint": "837f22111a0ea4c7521e1ba58a08e028ed6c1706a2a362d29e51fb6ba7adb84c"
+    },
+    {
+      "trip_id": "00000065",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000065_585c53c69e01330f.npz",
+      "fingerprint": "585c53c69e01330f247344f9030429a92a13f69a66db232e8fd243ddd017de03"
+    },
+    {
+      "trip_id": "00000076",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000076_beb2d5c37bc32f2a.npz",
+      "fingerprint": "beb2d5c37bc32f2a76f3ac0d276485a05dff230032329b611b257d4c5ed504f1"
+    },
+    {
+      "trip_id": "00000077",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000077_ffd5ee37d96549ed.npz",
+      "fingerprint": "ffd5ee37d96549edd346923d532aaae94466bde530623e1e3b49f1760384eead"
+    },
+    {
+      "trip_id": "00000091",
+      "partition": "student_test",
+      "path": "C:\\Users\\Edwin Himax\\Documents\\ChatGPT\\ML_Hackathon\\results\\member2\\cache\\student_test_00000091_47b9977380d9bb5c.npz",
+      "fingerprint": "47b9977380d9bb5c738012c994cfe80525ec6b07dd411ff8800643f0f6fcda17"
+    }
+  ]
+}

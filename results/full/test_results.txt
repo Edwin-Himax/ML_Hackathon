@@ -1,0 +1,39 @@
+test_alignment_has_original_observations_and_forward_arc (test_member2.Member2Tests.test_alignment_has_original_observations_and_forward_arc) ... ok
+test_emissions_normalize_per_observation_keep_keys_and_unmatched (test_member2.Member2Tests.test_emissions_normalize_per_observation_keep_keys_and_unmatched) ... ok
+test_features_have_no_absolute_ids_and_are_finite (test_member2.Member2Tests.test_features_have_no_absolute_ids_and_are_finite) ... ok
+test_gp_acquisition_is_used_after_random_initialization (test_member2.Member2Tests.test_gp_acquisition_is_used_after_random_initialization) ... ok
+test_group_folds_have_no_overlap_and_cover_all_trips (test_member2.Member2Tests.test_group_folds_have_no_overlap_and_cover_all_trips) ... ok
+test_loader_and_features_work_without_reference_file (test_member2.Member2Tests.test_loader_and_features_work_without_reference_file) ... ok
+test_projection_origin_and_distance (test_member2.Member2Tests.test_projection_origin_and_distance) ... ok
+test_segment_broadcast_and_zero_length (test_member2.Member2Tests.test_segment_broadcast_and_zero_length) ... ok
+test_spatial_index_finds_middle_of_long_edge_and_preserves_reverse (test_member2.Member2Tests.test_spatial_index_finds_middle_of_long_edge_and_preserves_reverse) ... ok
+test_top1_counts_candidate_misses_and_no_candidate_observations (test_member2.Member2Tests.test_top1_counts_candidate_misses_and_no_candidate_observations) ... ok
+test_disconnected_high_score_loses_to_connected_candidate (test_project.DecoderTests.test_disconnected_high_score_loses_to_connected_candidate) ... ok
+test_empty_candidate_trip_is_supported (test_project.DecoderTests.test_empty_candidate_trip_is_supported) ... ok
+test_impossible_transition_restarts_instead_of_faking_path (test_project.DecoderTests.test_impossible_transition_restarts_instead_of_faking_path) ... ok
+test_large_gap_resets_even_when_states_are_connected (test_project.DecoderTests.test_large_gap_resets_even_when_states_are_connected) ... ok
+test_no_candidate_retains_unmatched_observation (test_project.DecoderTests.test_no_candidate_retains_unmatched_observation) ... ok
+test_adjacent_arcs_include_both_partials (test_project.GraphTests.test_adjacent_arcs_include_both_partials) ... ok
+test_direction_and_disconnection (test_project.GraphTests.test_direction_and_disconnection) ... ok
+test_exact_movement_bound (test_project.GraphTests.test_exact_movement_bound) ... ok
+test_parallel_arcs_are_not_summed_and_paths_keep_ids (test_project.GraphTests.test_parallel_arcs_are_not_summed_and_paths_keep_ids) ... ok
+test_same_arc_partial_distance (test_project.GraphTests.test_same_arc_partial_distance) ... ok
+test_small_jitter_allowed_but_long_backward_move_needs_cycle (test_project.GraphTests.test_small_jitter_allowed_but_long_backward_move_needs_cycle) ... ok
+test_zero_length_arcs_and_cache_bound (test_project.GraphTests.test_zero_length_arcs_and_cache_bound) ... ok
+test_actual_prediction_fresh_ids_and_reference_whitelist (test_project.IntegrationTests.test_actual_prediction_fresh_ids_and_reference_whitelist) ... ok
+test_cors_and_static_paths (test_project.IntegrationTests.test_cors_and_static_paths) ... ok
+test_evaluator_settings_never_auto_read_development_references (test_project.IntegrationTests.test_evaluator_settings_never_auto_read_development_references) ... ok
+test_health_and_ten_trips (test_project.IntegrationTests.test_health_and_ten_trips) ... ok
+test_invalid_and_unknown_trip_ids (test_project.IntegrationTests.test_invalid_and_unknown_trip_ids) ... ok
+test_missing_reference_still_returns_prediction (test_project.IntegrationTests.test_missing_reference_still_returns_prediction) ... ok
+test_official_pointwise_csv_replaces_provisional_labels (test_project.IntegrationTests.test_official_pointwise_csv_replaces_provisional_labels) ... ok
+test_raw_prediction_never_loads_route (test_project.IntegrationTests.test_raw_prediction_never_loads_route) ... ok
+test_trip_list_does_not_open_references (test_project.IntegrationTests.test_trip_list_does_not_open_references) ... ok
+test_known_edit_distances (test_project.SequenceTests.test_known_edit_distances) ... ok
+test_revisits_survive_collapse (test_project.SequenceTests.test_revisits_survive_collapse) ... ok
+test_vectorized_edit_distance_matches_scalar_reference (test_project.SequenceTests.test_vectorized_edit_distance_matches_scalar_reference) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.857s
+
+OK

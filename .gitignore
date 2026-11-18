@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+tmp/
+Student folder/
+Student folder.zip
+results/member2/cache/
+runtime/
+output/*.zip
+private_references/
+private_pointwise/

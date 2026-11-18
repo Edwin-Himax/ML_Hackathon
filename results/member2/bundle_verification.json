@@ -1,0 +1,89 @@
+{
+  "model": "hist_gradient_boosting",
+  "run_signature": "380ea0a3d0feb1720099f20f5f3434f1406aa1d949e8869b2937f71cd991636e",
+  "artifact_sha256": "4d6d9cac37e295a8bec066bf8ecabf5ff9c2d9e0976baef8ad7982c8b4322876",
+  "verified_trips": 10,
+  "prediction_path_reads_reference_routes": false,
+  "trips": [
+    {
+      "trip_id": "00000000",
+      "observations": 2503,
+      "candidate_rows": 9908,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.29307650000009744,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000007",
+      "observations": 1354,
+      "candidate_rows": 4574,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.0862158999998428,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000009",
+      "observations": 1049,
+      "candidate_rows": 7925,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.1653397000000041,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000040",
+      "observations": 2995,
+      "candidate_rows": 12816,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.19350810000014462,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000052",
+      "observations": 262,
+      "candidate_rows": 1704,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.06168600000000879,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000056",
+      "observations": 3958,
+      "candidate_rows": 26627,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.2662124999997104,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000065",
+      "observations": 768,
+      "candidate_rows": 5542,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.08550560000003316,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000076",
+      "observations": 1486,
+      "candidate_rows": 11130,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.18633290000025227,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000077",
+      "observations": 3911,
+      "candidate_rows": 27346,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.234392299999854,
+      "raw_vs_cached_scores_match": true
+    },
+    {
+      "trip_id": "00000091",
+      "observations": 874,
+      "candidate_rows": 6121,
+      "unmatched": 0,
+      "end_to_end_inference_s": 0.09057739999980186,
+      "raw_vs_cached_scores_match": true
+    }
+  ]
+}

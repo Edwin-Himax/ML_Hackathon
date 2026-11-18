@@ -1,0 +1,128 @@
+[
+  {
+    "partition": "train",
+    "trip_id": "00000002",
+    "route_row": 53,
+    "from_arc": 1848,
+    "to_arc": 10863,
+    "endpoint_gap_approx_m": 324.67835554219636,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000019",
+    "route_row": 94,
+    "from_arc": 85589,
+    "to_arc": 51027,
+    "endpoint_gap_approx_m": 240.94585315616598,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000019",
+    "route_row": 151,
+    "from_arc": 55059,
+    "to_arc": 55050,
+    "endpoint_gap_approx_m": 255.18142682268297,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000019",
+    "route_row": 300,
+    "from_arc": 953,
+    "to_arc": 23709,
+    "endpoint_gap_approx_m": 596.075844914656,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000033",
+    "route_row": 164,
+    "from_arc": 1003,
+    "to_arc": 1002,
+    "endpoint_gap_approx_m": 91.9341769853696,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000041",
+    "route_row": 12,
+    "from_arc": 1264,
+    "to_arc": 519,
+    "endpoint_gap_approx_m": 57.226418862876415,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000042",
+    "route_row": 1212,
+    "from_arc": 14661,
+    "to_arc": 17989,
+    "endpoint_gap_approx_m": 30.715662244996984,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000069",
+    "route_row": 153,
+    "from_arc": 10165,
+    "to_arc": 10172,
+    "endpoint_gap_approx_m": 40.877642791007084,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000075",
+    "route_row": 31,
+    "from_arc": 507,
+    "to_arc": 509,
+    "endpoint_gap_approx_m": 10.620413814441138,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000075",
+    "route_row": 62,
+    "from_arc": 134,
+    "to_arc": 552,
+    "endpoint_gap_approx_m": 73.045134048025,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000080",
+    "route_row": 118,
+    "from_arc": 8899,
+    "to_arc": 9194,
+    "endpoint_gap_approx_m": 107.82238286755754,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000086",
+    "route_row": 1,
+    "from_arc": 230068,
+    "to_arc": 96025,
+    "endpoint_gap_approx_m": 97.74108442776146,
+    "same_arc": false
+  },
+  {
+    "partition": "train",
+    "trip_id": "00000089",
+    "route_row": 192,
+    "from_arc": 22715,
+    "to_arc": 22703,
+    "endpoint_gap_approx_m": 29.307723886951226,
+    "same_arc": false
+  },
+  {
+    "partition": "student_test",
+    "trip_id": "00000076",
+    "route_row": 12,
+    "from_arc": 39548,
+    "to_arc": 1122,
+    "endpoint_gap_approx_m": 15.036139014358215,
+    "same_arc": false
+  }
+]

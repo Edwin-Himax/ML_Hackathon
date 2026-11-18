@@ -1,0 +1,6 @@
+model,continuity,feasible_pairs,comparable_pairs
+decision_tree,0.9054258708026529,17338,19149
+distance_weighted_knn,0.9060003133322889,17349,19149
+hist_gradient_boosting,0.9137813985064495,17498,19149
+logistic_regression,0.9101258551360384,17428,19149
+random_forest,0.911170296099013,17448,19149

@@ -1,0 +1,11 @@
+{
+  "transition_beta_m": 15.0,
+  "emission_weight": 1.0,
+  "u_turn_penalty": 1.5,
+  "gap_reset_s": 60.0,
+  "max_speed_mps": 70.0,
+  "distance_slack_m": 40.0,
+  "maximum_path_m": 5000.0,
+  "backward_jitter_m": 8.0,
+  "distance_cache_entries": 512
+}

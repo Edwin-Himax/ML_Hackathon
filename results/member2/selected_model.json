@@ -1,0 +1,7 @@
+{
+  "signature": "380ea0a3d0feb1720099f20f5f3434f1406aa1d949e8869b2937f71cd991636e",
+  "model": "hist_gradient_boosting",
+  "selection_metric": "mean grouped-CV trip-macro candidate F1",
+  "value": 0.9056458606938002,
+  "label_status": "provisional derived labels; validate before final submission"
+}

@@ -1,0 +1,241 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "health": {
+    "status": "ready",
+    "version": "1.0.0",
+    "model": "hist_gradient_boosting",
+    "model_version": "4d6d9cac37e2",
+    "partition": "student_test",
+    "trip_count": 10,
+    "mode": "Development",
+    "reference_policy": "server_side_aggregate_only",
+    "classifier_label_status": "provisional_ordered_reference_alignment_pending_team_validation",
+    "decoder": {
+      "transition_beta_m": 15.0,
+      "emission_weight": 1.0,
+      "u_turn_penalty": 1.5,
+      "gap_reset_s": 60.0,
+      "max_speed_mps": 70.0,
+      "distance_slack_m": 40.0,
+      "maximum_path_m": 5000.0,
+      "backward_jitter_m": 8.0,
+      "distance_cache_entries": 512
+    }
+  },
+  "passed_trips": 10,
+  "observations": 19160,
+  "unknown_trip_status": 404,
+  "malformed_id_status": 422,
+  "trips": [
+    {
+      "trip_id": "00000000",
+      "request_id": "00f7851c10cb",
+      "status": 200,
+      "observations": 2503,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.9402105263157895,
+      "hmm_top1": 0.9574736842105264,
+      "client_elapsed_s": 0.8206785000002128,
+      "server_timings": {
+        "load_graph_s": 0.028855599999587866,
+        "candidates_s": 0.07077870000011899,
+        "features_classifier_s": 0.020677900000009686,
+        "transitions_s": 0.14130780000050436,
+        "viterbi_s": 0.17725340000015422,
+        "route_geometry_s": 0.035278199999993376,
+        "total_prediction_s": 0.4741589999994176,
+        "scoring_s": 0.11734240000077989,
+        "request_s": 0.5933967999999368
+      }
+    },
+    {
+      "trip_id": "00000007",
+      "request_id": "e7643512aee1",
+      "status": 200,
+      "observations": 1354,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.960387323943662,
+      "hmm_top1": 0.977112676056338,
+      "client_elapsed_s": 0.35646339999948395,
+      "server_timings": {
+        "load_graph_s": 0.024188100000174018,
+        "candidates_s": 0.036331199999949604,
+        "features_classifier_s": 0.013477399999828776,
+        "transitions_s": 0.05890689999978349,
+        "viterbi_s": 0.097586500000034,
+        "route_geometry_s": 0.01838839999982156,
+        "total_prediction_s": 0.24888559999999416,
+        "scoring_s": 0.05973210000047402,
+        "request_s": 0.3099087000000509
+      }
+    },
+    {
+      "trip_id": "00000009",
+      "request_id": "0e7c00edeec3",
+      "status": 200,
+      "observations": 1049,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.828125,
+      "hmm_top1": 0.8934659090909091,
+      "client_elapsed_s": 0.6549537000000782,
+      "server_timings": {
+        "load_graph_s": 0.03245920000063052,
+        "candidates_s": 0.09661839999989752,
+        "features_classifier_s": 0.01879119999921386,
+        "transitions_s": 0.20831060000000434,
+        "viterbi_s": 0.0699453999995967,
+        "route_geometry_s": 0.024765799999840965,
+        "total_prediction_s": 0.4508974999998827,
+        "scoring_s": 0.10834949999934906,
+        "request_s": 0.5599649999994654
+      }
+    },
+    {
+      "trip_id": "00000040",
+      "request_id": "528fd8268167",
+      "status": 200,
+      "observations": 2995,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.8943327239488117,
+      "hmm_top1": 0.9411334552102376,
+      "client_elapsed_s": 1.0875940000005357,
+      "server_timings": {
+        "load_graph_s": 0.05647619999945164,
+        "candidates_s": 0.08829250000053435,
+        "features_classifier_s": 0.024149300000317453,
+        "transitions_s": 0.18789600000036444,
+        "viterbi_s": 0.20252760000039416,
+        "route_geometry_s": 0.10511139999925945,
+        "total_prediction_s": 0.6644622000003437,
+        "scoring_s": 0.1818141999992804,
+        "request_s": 0.847185100000388
+      }
+    },
+    {
+      "trip_id": "00000052",
+      "request_id": "2efcd3259119",
+      "status": 200,
+      "observations": 262,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.9534883720930233,
+      "hmm_top1": 0.9813953488372092,
+      "client_elapsed_s": 0.12352949999967677,
+      "server_timings": {
+        "load_graph_s": 0.00496249999923748,
+        "candidates_s": 0.009792099999685888,
+        "features_classifier_s": 0.008793599999989965,
+        "transitions_s": 0.03211310000006051,
+        "viterbi_s": 0.018129699999917648,
+        "route_geometry_s": 0.004247199999554141,
+        "total_prediction_s": 0.07804380000015954,
+        "scoring_s": 0.015834900000299967,
+        "request_s": 0.09403440000005503
+      }
+    },
+    {
+      "trip_id": "00000056",
+      "request_id": "95d9e72b4637",
+      "status": 200,
+      "observations": 3958,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.8913043478260869,
+      "hmm_top1": 0.9365645046329294,
+      "client_elapsed_s": 2.3862850000004983,
+      "server_timings": {
+        "load_graph_s": 0.06076539999958186,
+        "candidates_s": 0.14632129999972676,
+        "features_classifier_s": 0.045166900000367605,
+        "transitions_s": 0.5228643000000375,
+        "viterbi_s": 0.2784451999996236,
+        "route_geometry_s": 0.15983520000008866,
+        "total_prediction_s": 1.213404700000865,
+        "scoring_s": 0.9102311000006011,
+        "request_s": 2.1257417999995596
+      }
+    },
+    {
+      "trip_id": "00000065",
+      "request_id": "70dc94dfe6cb",
+      "status": 200,
+      "observations": 768,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.8492462311557789,
+      "hmm_top1": 0.8927973199329984,
+      "client_elapsed_s": 0.47978519999924174,
+      "server_timings": {
+        "load_graph_s": 0.03986389999954554,
+        "candidates_s": 0.0304984999993394,
+        "features_classifier_s": 0.016410700000051293,
+        "transitions_s": 0.13210669999989477,
+        "viterbi_s": 0.05097060000025522,
+        "route_geometry_s": 0.010598099999697297,
+        "total_prediction_s": 0.28045360000032815,
+        "scoring_s": 0.11062120000042341,
+        "request_s": 0.3916471000002275
+      }
+    },
+    {
+      "trip_id": "00000076",
+      "request_id": "35a6d0661e7d",
+      "status": 200,
+      "observations": 1486,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.8354679802955665,
+      "hmm_top1": 0.9566502463054187,
+      "client_elapsed_s": 1.679462500000227,
+      "server_timings": {
+        "load_graph_s": 0.07797229999960109,
+        "candidates_s": 0.06232769999951415,
+        "features_classifier_s": 0.02127199999995355,
+        "transitions_s": 0.9571733000002496,
+        "viterbi_s": 0.10526100000060978,
+        "route_geometry_s": 0.09345789999952103,
+        "total_prediction_s": 1.3174694999997882,
+        "scoring_s": 0.16918379999970057,
+        "request_s": 1.4877024000006713
+      }
+    },
+    {
+      "trip_id": "00000077",
+      "request_id": "62f140b80093",
+      "status": 200,
+      "observations": 3911,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.7032142857142857,
+      "hmm_top1": 0.7435714285714285,
+      "client_elapsed_s": 1.521487299999535,
+      "server_timings": {
+        "load_graph_s": 0.030733499999769265,
+        "candidates_s": 0.20800119999967137,
+        "features_classifier_s": 0.042841800000132935,
+        "transitions_s": 0.46199999999953434,
+        "viterbi_s": 0.27170010000008915,
+        "route_geometry_s": 0.05926140000065061,
+        "total_prediction_s": 1.0745441999997638,
+        "scoring_s": 0.22505199999977776,
+        "request_s": 1.3023079000004145
+      }
+    },
+    {
+      "trip_id": "00000091",
+      "request_id": "aa0655776983",
+      "status": 200,
+      "observations": 874,
+      "label_status": "provisional_alignment",
+      "classifier_top1": 0.8204379562043795,
+      "hmm_top1": 0.8802919708029197,
+      "client_elapsed_s": 0.44543160000011994,
+      "server_timings": {
+        "load_graph_s": 0.032757399999354675,
+        "candidates_s": 0.03414130000055593,
+        "features_classifier_s": 0.015590599999995902,
+        "transitions_s": 0.13376449999941542,
+        "viterbi_s": 0.06057669999972859,
+        "route_geometry_s": 0.013245399999505025,
+        "total_prediction_s": 0.29008109999995213,
+        "scoring_s": 0.06684949999998935,
+        "request_s": 0.3573141000006217
+      }
+    }
+  ]
+}

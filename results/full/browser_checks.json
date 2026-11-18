@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "method": "Observed browser interactions",
+  "checks": [
+    "Desktop route rendering",
+    "Trip search and switching",
+    "Classifier layer checkbox",
+    "Zoom and fit controls",
+    "Trajectory playback advances observation",
+    "Pipeline help dialog",
+    "Mobile 390-pixel layout without horizontal overflow",
+    "Mobile native trip selector",
+    "Separate UI on port 8001 calls API on port 8000",
+    "Unavailable API shows zero trips and cleared metrics",
+    "API connection recovers to a real prediction",
+    "Generated Folium map renders reference/prediction layers"
+  ],
+  "physical_two_laptop_test": false
+}

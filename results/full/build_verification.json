@@ -1,0 +1,43 @@
+{
+  "tests": {
+    "tests_run": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "successful": true,
+    "duration_s": 3.284215100000438
+  },
+  "live_http": {
+    "passed_trips": 10,
+    "observations": 19160
+  },
+  "browser_checks": {
+    "status": "passed",
+    "method": "Observed browser interactions",
+    "checks": [
+      "Desktop route rendering",
+      "Trip search and switching",
+      "Classifier layer checkbox",
+      "Zoom and fit controls",
+      "Trajectory playback advances observation",
+      "Pipeline help dialog",
+      "Mobile 390-pixel layout without horizontal overflow",
+      "Mobile native trip selector",
+      "Separate UI on port 8001 calls API on port 8000",
+      "Unavailable API shows zero trips and cleared metrics",
+      "API connection recovers to a real prediction",
+      "Generated Folium map renders reference/prediction layers"
+    ],
+    "physical_two_laptop_test": false
+  },
+  "python_compilation_passed": true,
+  "javascript_syntax_check_passed": true,
+  "report": {
+    "pages": 16,
+    "rendered_and_visually_reviewed": true,
+    "sha256": "39302e7b198276dd280c5afbe6cd6e614f0ecb0c9790ea954df2f481499c78d4"
+  },
+  "physical_two_laptop_verification": false,
+  "organiser_evaluator_inputs_provided": false,
+  "repository_published_by_this_task": false
+}
