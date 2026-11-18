@@ -1,12 +1,12 @@
 # PathSnap Technical Report
 
-Distributed map matching and route reconstruction. This consolidated report documents the implemented data pipeline, five classifier experiments, Bayesian optimisation, directed-graph HMM/Viterbi reconstruction, local API and evaluator interface. It reports actual saved experiments and identifies the remaining evaluation setup checks.
+Distributed map matching and route reconstruction. This consolidated report documents the implemented data pipeline, six classifier experiments, Bayesian optimisation, directed-graph HMM/Viterbi reconstruction, local API and evaluator interface. It reports actual saved experiments and identifies the remaining evaluation setup checks.
 
 ## 1 Project outcome and evaluation status
 
 The complete application processed all ten supplied student-testing trips (19,160 observations). On 15,068 eligible derived labels, classifier-only agreement was 0.8591 and HMM agreement was 0.9036. Feasible continuity across comparable adjacent observations increased from 0.9138 to 0.9975. All 10 trips improved overall point agreement.
 
-**Reference limitation:** supplied route files list traversed arcs, not one label per GPS point. Pointwise results use a provisional ordered reference alignment and exclude ambiguous/distant points. They are agreement with derived labels, not independently verified ground-truth accuracy. Model features and derived labels share geometric cues, which can inflate agreement. Official pointwise labels can be configured in the isolated scorer. No organiser-only evaluator dataset was provided or used.
+**Reference limitation:** supplied route files list traversed arcs. Point agreement uses a provisional ordered reference alignment and excludes ambiguous or distant points. Model features and derived labels share geometric cues, which can inflate agreement. The isolated scorer also accepts official pointwise labels when supplied.
 
 ## 2 Dataset understanding and exploratory data analysis
 
@@ -36,6 +36,7 @@ Laptop 1 loads the frozen classifier, raw GPS/network, graph transition policy a
 | Decision Tree | Tree | depth=10; leaf=20 | 0.8958 | 0.8511 | 0.9054 | 0.9126 | 0.1413 | 0.0064 |
 | Random Forest | Bagged tree ensemble | 100 trees; depth=14; leaf=10 | 0.9015 | 0.8536 | 0.9112 | 0.9175 | 0.1146 | 0.3120 |
 | Histogram Gradient Boosting | Boosted tree ensemble | 120 rounds; rate=.08; 15 leaves | 0.9056 | 0.8591 | 0.9138 | 0.9205 | 0.1104 | 0.0939 |
+| LightGBM | Boosted tree ensemble | 91 trees; rate=.11885; 25 leaves; leaf=70 | 0.9053 | 0.8596 | 0.9136 | 0.9203 | 0.1099 | 0.1285 |
 
 The consolidated table combines measured classifier CV/student diagnostics with classifier-only graph continuity on all student GPS observations. Candidate F1 and observation Top-1 use the eligible-label protocol; continuity uses all comparable adjacent observations. Details of precision, recall, timings and each model follow.
 
@@ -65,7 +66,7 @@ The five fixed group folds each hold out 16 complete training trips and fit on t
 
 StandardScaler is fit only inside each training fold for Logistic Regression and KNN. The tree estimators use the same unscaled feature matrix. Histogram Gradient Boosting internal early stopping is disabled. Candidate binary metrics use labels [nonmatch, match] and threshold 0.5; candidate metrics are averaged by trip. Top-1 accuracy is pooled across eligible observations. Folds and all sampling rules are identical across models. Model selection and the Bayesian objective use only training CV; student testing is the permitted development comparison. No evaluator-testing data was supplied or used.
 
-### Five model comparison
+### Six-model comparison
 
 | Model | Family | CV candidate F1 | Student precision | Student recall | Student F1 | Student Top-1 | Binary log loss | Classifier seconds |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -74,6 +75,7 @@ StandardScaler is fit only inside each training fold for Logistic Regression and
 | Decision Tree | Tree | 0.8958 +/- 0.0174 | 0.9135 | 0.9119 | 0.9126 | 0.8511 | 0.1413 | 0.0064 |
 | Random Forest | Bagged tree ensemble | 0.9015 +/- 0.0180 | 0.9256 | 0.9102 | 0.9175 | 0.8536 | 0.1146 | 0.3120 |
 | Histogram Gradient Boosting | Boosted tree ensemble | 0.9056 +/- 0.0171 | 0.9225 | 0.9187 | 0.9205 | 0.8591 | 0.1104 | 0.0939 |
+| LightGBM | Boosted tree ensemble | 0.9053 +/- 0.0174 | 0.9223 | 0.9187 | 0.9203 | 0.8596 | 0.1099 | 0.1285 |
 
 CV values are fold means with standard deviation. Precision, recall and F1 are binary candidate Macro metrics; they are not arc-class Macro F1. Classifier seconds cover the ten student-testing trips' eligible candidate matrices, excluding raw-file loading, candidates, features and decoding. Log loss is binary candidate loss, not normalized observation loss. Route continuity and decoder comparisons are reported in Section 5.
 
@@ -87,7 +89,7 @@ CV values are fold means with standard deviation. Precision, recall and F1 are b
 
 A small probabilistic baseline tests whether geometric relationships are adequately linear. Standardisation makes the numerical feature scales comparable. Its linear boundary can miss interactions between heading reliability, distance and road structure.
 
-**Initial configuration:** `{"C": 1.0, "max_iter": 500}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"C": 1.0, "max_iter": 500}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** L2-regularised binary logistic loss.
 
@@ -99,7 +101,7 @@ A small probabilistic baseline tests whether geometric relationships are adequat
 
 Neighbour voting tests whether locally similar candidate configurations share compatibility labels. Standardisation is necessary for meaningful distance. Prediction must search retained training examples, and correlated geometric features can distort neighbour distance.
 
-**Initial configuration:** `{"algorithm": "kd_tree", "leaf_size": 40, "n_neighbors": 15, "weights": "distance"}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"algorithm": "kd_tree", "leaf_size": 40, "n_neighbors": 15, "weights": "distance"}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** No iterative training loss; inverse-distance neighbour voting in scaled feature space.
 
@@ -111,7 +113,7 @@ Neighbour voting tests whether locally similar candidate configurations share co
 
 A bounded tree can learn readable nonlinear rules over distance, heading and candidate context. A single tree is sensitive to the training sample and can produce abrupt probability changes; the depth/leaf constraints limit memorisation.
 
-**Initial configuration:** `{"max_depth": 10, "min_samples_leaf": 20}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"max_depth": 10, "min_samples_leaf": 20}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Greedy Gini impurity reduction with depth and leaf-size constraints.
 
@@ -123,7 +125,7 @@ A bounded tree can learn readable nonlinear rules over distance, heading and can
 
 Averaged bootstrapped trees reduce the instability of a single tree while modelling feature interactions. More trees increase storage and prediction cost; their averaged probabilities are not automatically calibrated.
 
-**Initial configuration:** `{"max_depth": 14, "max_features": "sqrt", "min_samples_leaf": 10, "n_estimators": 100}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"max_depth": 14, "max_features": "sqrt", "min_samples_leaf": 10, "n_estimators": 100}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Bootstrap-trained trees with Gini splits, averaging class probabilities.
 
@@ -135,13 +137,25 @@ Averaged bootstrapped trees reduce the instability of a single tree while modell
 
 Histogram-based boosting combines nonlinear feature rules and handles continuous geometric inputs without scaling. Its iteration count, learning rate and leaf settings require validation. Internal row-split early stopping is disabled to preserve the external trip-group protocol.
 
-**Initial configuration:** `{"early_stopping": false, "l2_regularization": 1.0, "learning_rate": 0.08, "max_iter": 120, "max_leaf_nodes": 15, "min_samples_leaf": 30}`. Random seed 42 applies where supported; compute threads are limited to four.
+**Evaluated configuration:** `{"early_stopping": false, "l2_regularization": 1.0, "learning_rate": 0.08, "max_iter": 120, "max_leaf_nodes": 15, "min_samples_leaf": 30}`. Random seed 42 applies where supported; compute threads are limited to four.
 
 **Objective:** Stagewise minimisation of binary log loss, with L2 regularisation and a fixed iteration budget.
 
 **Measured results:** CV candidate Macro F1 0.9056 +/- 0.0171; student-testing precision 0.9225, recall 0.9187, candidate Macro F1 0.9205, Top-1 0.8591 and binary log loss 0.1104. Combined five-fold fitting took 1.982 s; final fitting took 0.467 s; student classifier scoring took 0.0939 s on this machine.
 
 **Fit/generalisation diagnostic:** pooled candidate Macro F1 on 10,000 sampled rows of the exact training matrix is 0.9112. This resubstitution statistic is optimistic and has a different aggregation from the trip-macro held-out scores. The fold standard deviation is 0.0171; inspect per-trip results rather than attributing the difference solely to overfitting. These diagnostics do not establish whether the model has exhausted its capacity or generalises to independently labelled routes.
+
+### LightGBM
+
+LightGBM models nonlinear interactions among distance, heading and road context with histogram-based, leaf-wise boosted trees. Leaf count, minimum leaf size and regularisation constrain complexity. Its candidate compatibility scores supply emissions to the shared sequence decoder.
+
+**Evaluated configuration:** `{"boosting_type": "gbdt", "deterministic": true, "force_col_wise": true, "learning_rate": 0.11884640362789968, "max_bin": 255, "min_child_samples": 70, "n_estimators": 91, "n_jobs": 4, "num_leaves": 25, "objective": "binary", "random_state": 42, "reg_lambda": 0.6158459876169441, "verbosity": -1}`. Random seed 42 applies where supported; compute threads are limited to four.
+
+**Objective:** Binary log loss with leaf-wise gradient boosting and L2 regularisation.
+
+**Measured results:** CV candidate Macro F1 0.9053 +/- 0.0174; student-testing precision 0.9223, recall 0.9187, candidate Macro F1 0.9203, Top-1 0.8596 and binary log loss 0.1099. Combined five-fold fitting took 2.308 s; final fitting took 0.590 s; student classifier scoring took 0.1285 s on this machine.
+
+**Fit/generalisation diagnostic:** pooled candidate Macro F1 on 10,000 sampled rows of the exact training matrix is 0.9189. This resubstitution statistic is optimistic and has a different aggregation from the trip-macro held-out scores. The fold standard deviation is 0.0174; inspect per-trip results rather than attributing the difference solely to overfitting. These diagnostics do not establish whether the model has exhausted its capacity or generalises to independently labelled routes.
 
 ### Model selection
 
@@ -180,6 +194,39 @@ The exported final bundle uses `hist_gradient_boosting.joblib` according to the 
 ![Measured training times](../member2/plots/training_times.png)
 
 No epoch training/validation curves were fabricated. The selected estimators were run without a recorded epoch-wise validation history. Confusion matrices use actual final-model student candidate predictions and the fixed 0.5 threshold.
+
+### Boosted classifier tuning and route evaluation
+
+The classifiers use the same 16 features, candidates and labels, five trip folds, and observation sampling. LightGBM 4.6.0 fitting used 16,000 observations and 96,698 candidate rows across 80 training trips. All ten student trips were evaluated after training CV selected its settings.
+
+
+
+
+
+HGB and LightGBM each used a baseline and 12 Bayesian trials. Each search initialized four trials randomly and proposed eight using GP expected improvement. Corresponding search bounds were learning_rate 0.02–0.2 (log), num_leaves/max_leaf_nodes 7–47, min_child_samples/min_samples_leaf 10–80, reg_lambda/l2_regularization 0.001–10 (log), and n_estimators/max_iter 80–200.
+
+Selected LightGBM configuration: n_estimators=91, learning_rate=0.11884640362789968, num_leaves=25, min_child_samples=70, reg_lambda=0.6158459876169441. CPU fitting used four threads, seed 42, deterministic column-wise training, binary objective, and max_bin=255.
+
+![LightGBM Bayesian trials](../lightgbm/plots/bayesian_search.png)
+
+Both HGB and LightGBM were evaluated through the same frozen decoder. Decoder parameters were selected using HGB emissions on the declared training-trip development subset, so this comparison uses one common transition policy.
+
+| Route metric | HGB | LightGBM |
+| --- | --- | --- |
+| CLASSIFIER Point agreement | 0.859105 | 0.859570 |
+| CLASSIFIER Arc Macro F1 | 0.880029 | 0.884842 |
+| CLASSIFIER Continuity | 0.913781 | 0.913625 |
+| CLASSIFIER Sequence similarity | 0.442851 | 0.442167 |
+| HMM Point agreement | 0.903570 | 0.904234 |
+| HMM Arc Macro F1 | 0.920637 | 0.922637 |
+| HMM Continuity | 0.997493 | 0.997493 |
+| HMM Sequence similarity | 0.756493 | 0.753936 |
+
+Decoded point agreement was 13,615/15,068 for HGB and 13,625/15,068 for LightGBM. LightGBM improved four trips, tied three, and scored lower on three. These labels are provisional ordered-route alignments and share geometric cues with model features. All 19,160 GPS observations received predictions. The reserved evaluator data was unavailable.
+
+HGB is the application default under the selection rule of highest training grouped-CV candidate Macro F1. Timing comparisons use recorded runs and are machine-dependent.
+
+Evidence is saved in results/lightgbm/model_comparison.csv, selected.json, protocol.json, bayesian_trials.json, route_comparison.json, and each model subdirectory. Reproduce with python scripts/run_lightgbm.py after cache preparation.
 
 
 
@@ -241,7 +288,9 @@ Within the eligible subset, HMM corrected 1,200 previously wrong point assignmen
 
 ## 6 Geographical visualisation with Folium
 
-Interactive Folium HTML maps were generated from actual inference for all ten student-testing trips under results/full/maps. Layers distinguish raw GPS (blue), road geometry (gray), supplied development reference (purple), classifier (amber) and HMM (teal), with start/end markers, legend, layer controls and fitted bounds. References are permitted development comparisons only; this directory is not mounted by FastAPI. The optional OpenStreetMap layer is off by default. Folium viewer libraries use their standard CDN assets, so opening the HTML may require Internet even though vectors are embedded. The evaluator UI itself uses an offline canvas map with local assets.
+Interactive Folium HTML maps were generated from actual inference for all ten student-testing trips under results/full/maps. Layers distinguish raw GPS (blue), road geometry (gray), supplied development reference (purple), classifier (amber) and HMM (teal), with start/end markers, legend, layer controls and fitted bounds. References are permitted development comparisons only; this directory is not mounted by FastAPI. The optional OpenStreetMap layer is off by default. Folium viewer libraries use their standard CDN assets, so opening the HTML may require Internet even though vectors are embedded. The live UI offers OpenStreetMap tiles for development trips and a local road-network view for evaluator trips or offline use.
+
+![Current street-map dashboard](screenshots/ui_street_map.jpg)
 
 ![Actual Folium development map](screenshots/folium_map.jpg)
 
@@ -253,9 +302,9 @@ Interactive Folium HTML maps were generated from actual inference for all ten st
 
 ## 7 API UI deployment and reproducibility
 
-FastAPI implements GET /health, GET /trips and POST /predict with an eight-digit trip ID. The model loads once at startup; every prediction request runs fresh GPS/network inference. Request IDs, model versions, timings, outcome and trip ID are logged on the receiving server and in runtime/api_requests.jsonl. Unknown IDs return 404, malformed inputs return 422 and extra prediction fields are rejected. Static serving is restricted to ui/. Reference failures leave predictions available and mark scoring unavailable; no fabricated metric replaces missing references.
+FastAPI implements GET /health, GET /trips and POST /predict with an eight-digit trip ID and an optional classifier. Saved models load at startup. Every prediction request runs fresh GPS and network inference. The server records request and trip IDs, classifier and version, outcome and timings. Static serving is restricted to ui/. Reference failures leave predictions available and mark scoring unavailable.
 
-The UI supports all trips in the configured partition, separate API connection settings, real request loading/error states, raw GPS/classifier/HMM layers, keyboard and pointer map navigation, trajectory replay, metrics and JSON export. Returned data includes no reference routes or pointwise correctness. Missing official labels are clearly marked as provisional alignment agreement.
+The UI supports all trips in the configured partition, a six-model classifier selector, API connection settings, raw GPS, classifier and HMM layers, keyboard and pointer map navigation, trajectory replay, metrics and JSON export. The API keeps reference routes and pointwise correctness on the server. Point agreement derived from ordered routes is marked provisional.
 
 Run scripts/start_api.ps1 on Laptop 1 (add -Lan for LAN binding); on Laptop 2 run scripts/start_ui.ps1, open localhost:8001 and set the API address to Laptop 1. Set PATHSNAP_ALLOWED_ORIGINS if using a different UI origin. Use scripts/setup.ps1 and requirements-lock.txt for dependencies. Deployment instructions and evaluator data/reference conventions are in DEPLOYMENT.md.
 
@@ -263,14 +312,46 @@ Automated checks: 34 tests executed, 0 failures, 0 errors. The tests cover graph
 
 Live HTTP smoke check: all 10 student-testing trips returned successful predictions, covering 19,160 observations. Saved request IDs and real timings are in api_smoke_summary.json. Unknown-trip and malformed-ID checks returned 404 and 422 respectively.
 
-Pure prediction time across ten student trips ranged from 0.155 to 1.300 seconds (median 0.515) in this run; scoring, JSON transport and UI are excluded. These are machine-specific timings. Browser UI checks and localhost API/UI communication were performed on this machine. A physical two-laptop LAN rehearsal, receiving-laptop terminal screenshot and final reserved-trip evaluation must still be completed on the actual event setup. Reserved evaluator inputs were not supplied; no results are claimed for them.
+Pure prediction time across ten student trips ranged from 0.155 to 1.300 seconds (median 0.515) on the development machine. The team still needs to rehearse the physical two-laptop setup and capture its receiving-laptop terminal during that run.
 
-## 8 Conclusions limitations and team review
+## 8 Reserved evaluator results
+
+6 saved classifiers processed 10 reserved trips with 19,674 GPS observations per classifier. All 60 fresh prediction requests succeeded over HTTP. The same frozen decoder was used for each classifier. The default remained Histogram Gradient Boosting under the training cross-validation rule.
+
+Point agreement covers 14,831 eligible observations per model. Ordered route references support sequence scoring on 10 trips for each model.
+
+Pointwise agreement based on ordered route alignment is provisional. Ambiguous GPS observations are excluded from that metric.
+
+### Classifier only
+
+| Classifier | Point agreement | Arc Macro F1 | Continuity | Sequence similarity |
+| --- | --- | --- | --- | --- |
+| Logistic Regression | 77.34% | 86.14% | 86.87% | 46.34% |
+| Distance-weighted KNN | 77.63% | 86.33% | 87.18% | 46.19% |
+| Decision Tree | 77.14% | 86.35% | 86.88% | 46.60% |
+| Random Forest | 77.99% | 86.52% | 87.15% | 47.53% |
+| Histogram Gradient Boosting | 77.86% | 87.03% | 87.17% | 47.71% |
+| LightGBM | 78.09% | 87.85% | 87.28% | 47.59% |
+
+### Classifier with HMM/Viterbi
+
+| Classifier | Point agreement | Arc Macro F1 | Continuity | Sequence similarity |
+| --- | --- | --- | --- | --- |
+| Logistic Regression | 85.19% | 89.71% | 99.42% | 70.86% |
+| Distance-weighted KNN | 84.76% | 89.66% | 99.42% | 69.91% |
+| Decision Tree | 84.98% | 89.92% | 99.42% | 69.84% |
+| Random Forest | 85.28% | 90.51% | 99.42% | 73.60% |
+| Histogram Gradient Boosting | 85.44% | 90.41% | 99.42% | 73.65% |
+| LightGBM | 85.61% | 90.76% | 99.42% | 73.51% |
+
+Point agreement is pooled over eligible observations. Continuity is pooled over comparable adjacent observation pairs. Arc Macro F1 and sequence similarity are means across scored trips. The aggregate record includes model build identifiers and median prediction and request times.
+
+## 9 Conclusions, limitations and team review
 
 Directed graph transitions and sequence decoding improved both continuity and provisional-label agreement in the measured student-development comparison. The implementation is reproducible through saved source, model/configuration bundles, trip-grouped folds, Bayesian trial logs, decoder trials, per-trip outputs and plot-generation scripts. Label validation remains the most important prerequisite for a definitive accuracy claim. Spherical projection, limited candidate counts, sampled classifier training and imperfect references are practical limitations; official scoring conventions may change the measured results.
 
-Member 1 reviews dataset interpretation, geometry, candidates and graph transitions; Member 2 reviews features, alignment, five models and Bayesian optimisation; Member 3 reviews HMM, scoring, UI/API and deployment. All members must understand and defend the complete system. AI assistance was used to prepare code, analysis and report text; disclose it as required and review every claim against actual outputs. The public GitHub submission and organiser-specific submission actions are not performed by these local build scripts.
+Member 1 reviews dataset interpretation, geometry, candidates and graph transitions; Member 2 reviews features, alignment, six classifiers and Bayesian optimisation; Member 3 reviews HMM, scoring, UI/API and deployment. All members must understand and defend the complete system. AI assistance was used to prepare code, analysis and report text; disclose it as required and review every claim against actual outputs. The public GitHub submission and organiser-specific submission actions are not performed by these local build scripts.
 
-## 9 Technical references
+## 10 Technical references
 
 [FastAPI static files](https://fastapi.tiangolo.com/tutorial/static-files/) and [CORS](https://fastapi.tiangolo.com/tutorial/cors/); [scikit-learn grouped CV](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html) and [Gaussian process regression](https://scikit-learn.org/stable/modules/generated/sklearn.gaussian_process.GaussianProcessRegressor.html); [PROJ azimuthal-equidistant projection](https://proj.org/en/stable/operations/projections/aeqd.html); [Folium layer control](https://python-visualization.github.io/folium/v0.20.0/user_guide/ui_elements/layer_control.html). The directed graph search is implemented locally with a heap and bounded source cache.
