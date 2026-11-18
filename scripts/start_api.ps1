@@ -20,7 +20,9 @@ try {
     $bindAddress = if ($Lan) { '0.0.0.0' } else { '127.0.0.1' }
     Write-Host "PathSnap API | partition=$Partition | bind=$bindAddress | port=$Port"
     Write-Host "Local UI: http://127.0.0.1:$Port/ui/"
-    Write-Host 'Prediction request logs appear below and in runtime/api_requests.jsonl.'
+    $defaultLog = if ($Partition -eq 'evaluator_test') { 'runtime/evaluator_requests.jsonl' } else { 'runtime/api_requests.jsonl' }
+    $logPath = if ($env:PATHSNAP_LOG) { $env:PATHSNAP_LOG } else { $defaultLog }
+    Write-Host "Prediction request logs appear below and in $logPath."
     & '.\.venv\Scripts\python.exe' -m uvicorn api.app:app --host $bindAddress --port $Port
     if ($LASTEXITCODE -ne 0) { throw 'The API did not exit successfully.' }
 } finally { Pop-Location }
