@@ -46,15 +46,14 @@ function stopPlayback() {
 }
 function clearResult() {
   state.result = null; map.setData(null); stopPlayback();
-  for (const id of ['metric-accuracy','metric-continuity','metric-distance','metric-time','compare-classifier','compare-hmm','continuity-classifier','continuity-hmm','sequence-classifier','sequence-hmm','unmatched','resets','miss-rate','components']) $(id).textContent = '—';
-  $('metric-accuracy-note').textContent = 'Waiting for a prediction'; $('metric-distance-note').textContent = 'Connected route pieces';
+  for (const id of ['metric-accuracy','metric-continuity','metric-sequence','metric-distance','metric-time','route-pieces','compare-classifier','compare-hmm','continuity-classifier','continuity-hmm','sequence-classifier','sequence-hmm','unmatched','resets','miss-rate','components']) $(id).textContent = '—';
+  $('metric-accuracy-note').textContent = 'Waiting for a prediction';
   $('label-notice-text').textContent = 'Metrics appear after reconstruction. Reference labels stay on the server.';
   $('observation-label').textContent = 'Observation —'; $('observation-time').textContent = '—'; $('timeline-total').textContent = '— points';
   $('export-button').disabled = true; $('timeline').disabled = true; $('play-button').disabled = true;
   $('map-chip').textContent = 'READY'; $('run-state').textContent = 'Ready when you are';
   $('run-info-text').textContent = 'Select a trip to inspect its reconstructed route.';
   $('map-title').textContent = 'Route preview'; $('map-subtitle').textContent = 'Select a trip to start exploring';
-  $('map-scale').textContent = 'Vector map · no external tiles';
   $('break-notice').textContent = 'GPS gaps and disconnected roads are shown as route breaks.';
 }
 function selectTrip(id, run) {
@@ -62,10 +61,18 @@ function selectTrip(id, run) {
   if (state.controller) state.controller.abort();
   state.requestSerial++; busy(false); state.selected = id; clearResult(); renderTrips(); showError('');
   const trip = state.trips.find(t => t.trip_id === id);
-  $('map-title').textContent = `${trip.label} / Route reconstruction`;
+  $('map-title').textContent = trip.label;
   $('map-subtitle').textContent = `${id} · ${fmt(trip.observations)} GPS observations`;
   $('run-button').disabled = false;
   if (run) runPrediction();
+}
+function renderModels(health) {
+  const select = $('model-select');
+  const previous = select.value;
+  const models = health?.models || [];
+  select.replaceChildren(...models.map(model => new Option(model.label, model.id)));
+  select.value = models.some(model => model.id === previous) ? previous : (health?.model || '');
+  $('model-picker').hidden = models.length < 2;
 }
 async function connect(autoRun = true) {
   const connectionSerial = ++state.connectionSerial;
@@ -76,7 +83,14 @@ async function connect(autoRun = true) {
     let health, data;
     try {[health, data] = await Promise.all([request('/health', {signal: controller.signal}), request('/trips', {signal: controller.signal})]);} finally {clearTimeout(timeout);}
     if (connectionSerial !== state.connectionSerial) return;
+    const previousPartition = state.health?.partition;
     state.health = health; state.trips = data.trips;
+    renderModels(health);
+    if (previousPartition !== health.partition) {
+      const basemap = health.partition === 'evaluator_test' ? 'local' : 'street';
+      document.querySelector(`input[name="basemap"][value="${basemap}"]`).checked = true;
+      map.setBasemap(basemap, false);
+    }
     $('connection').className = 'connection online'; $('connection').innerHTML = '<i></i>API online';
     $('trip-count').textContent = data.trips.length;
     $('partition-title').textContent = health.partition === 'evaluator_test' ? 'Evaluator testing' : health.partition === 'train' ? 'Training trips' : 'Student testing';
@@ -86,6 +100,7 @@ async function connect(autoRun = true) {
     else {state.selected = null; clearResult(); renderTrips(); busy(false); if (data.notice) showError(data.notice);}
   } catch (error) {
     if (connectionSerial !== state.connectionSerial) return;
+    renderModels(null);
     $('connection').className = 'connection offline'; $('connection').innerHTML = '<i></i>API unavailable';
     state.trips = []; state.selected = null; clearResult(); renderTrips(); busy(false);
     $('trip-count').textContent = '0'; $('partition-title').textContent = 'Dataset unavailable'; $('footer-mode').textContent = 'API disconnected';
@@ -99,7 +114,9 @@ async function runPrediction() {
   announce(`Reconstructing trip ${Number(tripId)}.`);
   const timeout = setTimeout(() => state.controller?.abort(), 180000);
   try {
-    const result = await request('/predict', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({trip_id: tripId}), signal: state.controller.signal});
+    const payload = {trip_id: tripId};
+    if ($('model-select').value) payload.model = $('model-select').value;
+    const result = await request('/predict', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload), signal: state.controller.signal});
     if (serial !== state.requestSerial) return;
     state.result = result; showResult(result); announce(`Trip ${Number(tripId)} reconstructed. ${fmt(result.observation_count)} observations.`);
   } catch (error) {
@@ -111,11 +128,15 @@ async function runPrediction() {
 function showResult(data) {
   const evaluation = data.evaluation; const hs = data.hmm.summary;
   $('metric-accuracy').textContent = percent(evaluation.hmm.top1_accuracy);
-  $('metric-accuracy-note').textContent = `${fmt(evaluation.eligible_observations)} of ${fmt(data.observation_count)} points eligible`;
+  $('metric-accuracy-note').textContent = evaluation.status === 'provisional_alignment'
+    ? `Provisional · ${fmt(evaluation.eligible_observations)} eligible points`
+    : evaluation.hmm.top1_accuracy == null ? 'Point labels unavailable'
+    : `${fmt(evaluation.eligible_observations)} eligible points`;
   $('metric-continuity').textContent = percent(hs.continuity);
-  $('metric-distance').innerHTML = `${(hs.route_length_m / 1000).toFixed(2)}<small>km</small>`;
-  $('metric-distance-note').textContent = `${fmt(hs.route_pieces)} connected ${hs.route_pieces === 1 ? 'piece' : 'pieces'}`;
-  $('metric-time').innerHTML = `${data.timings.total_prediction_s.toFixed(2)}<small>s</small>`;
+  $('metric-distance').textContent = `${(hs.route_length_m / 1000).toFixed(2)} km`;
+  $('route-pieces').textContent = fmt(hs.route_pieces);
+  $('metric-sequence').textContent = percent(evaluation.hmm.sequence_similarity);
+  $('metric-time').innerHTML = `${fmt(Math.round(data.timings.request_s * 1000))}<small>ms</small>`;
   for (const name of ['classifier', 'hmm']) {
     $(`compare-${name}`).textContent = percent(evaluation[name].top1_accuracy);
     $(`continuity-${name}`).textContent = percent(data[name].summary.continuity);
@@ -131,7 +152,9 @@ function showResult(data) {
   if (reasons.no_candidates) summaries.push(`${fmt(reasons.no_candidates)} observations without candidates`);
   $('break-notice').textContent = summaries.length ? `Route breaks preserve ${summaries.join(' and ')}.` : 'No decoder restarts were needed. The reconstructed positions form a connected sequence.';
   $('map-chip').textContent = 'RECONSTRUCTED'; $('run-state').textContent = 'Live run complete';
-  $('run-info-text').textContent = `Request ${data.request_id} · Model ${data.model_version} · ${data.timings.request_s.toFixed(2)} s total`;
+  const modelLabel = state.health?.models?.find(model => model.id === data.model)?.label;
+  const model = modelLabel || data.model || 'Model';
+  $('run-info-text').textContent = `${model} · Request ${data.request_id} · Build ${data.model_version} · ${data.timings.request_s.toFixed(2)} s total`;
   $('timeline').max = data.observation_count - 1; $('timeline').value = 0; $('timeline').disabled = false;
   $('timeline-total').textContent = `${fmt(data.observation_count)} points`; $('export-button').disabled = false; $('play-button').disabled = false;
   map.setData(data); updateObservation(0);
@@ -149,7 +172,9 @@ class RouteMap {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d'); this.data = null;
     this.scale = 1; this.center = [0, 0]; this.observation = 0; this.drag = null;
-    this.layers = {roads: true, gps: true, classifier: false, hmm: true};
+    this.layers = {gps: true, classifier: false, hmm: true};
+    this.basemap = 'street';
+    this.tiles = new StreetTiles($('map-tiles'), () => this.draw());
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
     canvas.addEventListener('wheel', e => {e.preventDefault(); const rect = canvas.getBoundingClientRect(); this.zoom(Math.exp(-e.deltaY * .0015), e.clientX - rect.left, e.clientY - rect.top);}, {passive: false});
     canvas.addEventListener('pointerdown', e => {this.drag = {x: e.clientX, y: e.clientY, center: [...this.center], moved: false}; canvas.setPointerCapture(e.pointerId); canvas.classList.add('dragging'); $('map-tooltip').hidden = true;});
@@ -172,29 +197,45 @@ class RouteMap {
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     if (this.data) this.fit(); else this.draw();
   }
-  local(point) {return [(point[0] - this.origin[0]) * this.lonScale, -(point[1] - this.origin[1]) * 111195.08];}
+  local(point) {
+    const [x, y] = mapCoordinate(point);
+    const dx = x - this.origin[0];
+    return [dx - Math.round(dx / WORLD_SIZE) * WORLD_SIZE, y - this.origin[1]];
+  }
   pixel(point) {return [(point[0] - this.center[0]) * this.scale + this.w / 2, (point[1] - this.center[1]) * this.scale + this.h / 2];}
   setData(data) {
     this.data = data; $('map-empty').hidden = Boolean(data); $('map-tooltip').hidden = true;
     if (!data) {this.draw(); return;}
-    this.origin = data.gps.reduce((a, p) => [a[0] + p[0] / data.gps.length, a[1] + p[1] / data.gps.length], [0,0]);
-    this.lonScale = 111195.08 * Math.cos(this.origin[1] * Math.PI / 180);
+    this.origin = mapCoordinate(data.gps[0]);
     this.gps = data.gps.map(p => this.local(p)); this.roads = data.road_segments.map(line => line.map(p => this.local(p)));
     this.classifier = data.classifier.pieces.map(piece => piece.map(p => this.local(p)));
     this.hmm = data.hmm.pieces.map(piece => piece.map(p => this.local(p)));
     this.snapped = data.hmm.snapped.map(p => p ? this.local(p) : null); this.observation = 0; this.fit();
   }
   fit() {
-    if (!this.data) return;
+    if (!this.data || !this.w || !this.h) return;
     const points = [...this.gps, ...this.hmm.flat()];
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const p of points) {minX = Math.min(minX,p[0]); maxX = Math.max(maxX,p[0]); minY = Math.min(minY,p[1]); maxY = Math.max(maxY,p[1]);}
-    this.center = [(minX + maxX) / 2, (minY + maxY) / 2];
-    this.scale = Math.min((this.w - 100) / Math.max(maxX - minX, 50), (this.h - 120) / Math.max(maxY - minY, 50)); this.draw();
+    const leftPad = Math.min(52, this.w * .12);
+    const rightPad = $('map-layers').open ? Math.min(168, this.w * .30) : leftPad;
+    const paddingY = Math.min(110, this.h * .25);
+    this.scale = Math.min((this.w - leftPad - rightPad) / Math.max(maxX - minX, 50), (this.h - paddingY) / Math.max(maxY - minY, 50));
+    this.center = [(minX + maxX) / 2 + (rightPad - leftPad) / (2 * this.scale), (minY + maxY) / 2];
+    this.draw();
+  }
+  setBasemap(value, redraw = true) {
+    this.basemap = value;
+    if (value === 'street') {
+      for (const [key, tile] of this.tiles.cache) {
+        if (tile.status === 'failed') this.tiles.cache.delete(key);
+      }
+    }
+    if (redraw) this.draw();
   }
   zoom(factor, x = this.w / 2, y = this.h / 2) {
     if (!this.data) return;
-    const old = this.scale, next = Math.max(.0005, Math.min(40, old * factor));
+    const old = this.scale, next = Math.max(256 / WORLD_SIZE, Math.min(40, old * factor));
     this.center[0] += (x - this.w / 2) * (1 / old - 1 / next); this.center[1] += (y - this.h / 2) * (1 / old - 1 / next); this.scale = next; this.draw();
   }
   lines(pieces, color, width, dash = []) {
@@ -206,31 +247,64 @@ class RouteMap {
     const c = this.ctx, p = this.pixel(point); c.beginPath(); c.arc(...p, radius, 0, Math.PI * 2); c.fillStyle = fill; c.fill(); c.strokeStyle = border; c.lineWidth = 2; c.stroke();
   }
   draw() {
-    const c = this.ctx; if (!c || !this.w) return;
-    c.clearRect(0, 0, this.w, this.h); c.fillStyle = '#edf0e9'; c.fillRect(0, 0, this.w, this.h);
-    const grid = 80; c.beginPath(); c.strokeStyle = '#e5eadd'; c.lineWidth = .6;
-    for (let x=0;x<this.w;x+=grid) {c.moveTo(x,0);c.lineTo(x,this.h);} for(let y=0;y<this.h;y+=grid){c.moveTo(0,y);c.lineTo(this.w,y);} c.stroke();
+    const c = this.ctx; if (!c || !this.w || !this.h) return;
+    const center = this.data ? [this.center[0] + this.origin[0], this.center[1] + this.origin[1]] : null;
+    let street = {loaded: false, loading: false};
+    if (center && this.basemap === 'street') street = this.tiles.render(center, this.scale, this.w, this.h);
+    else this.tiles.clear();
+    $('map-attribution').hidden = !street.loaded;
+    const source = $('map-source');
+    const sourceText = !center || street.loaded ? '' : this.basemap === 'local' ? 'Local road network' :
+      street.loading ? 'Loading street map…' : 'Street map unavailable · showing local roads';
+    if (source.textContent !== sourceText) source.textContent = sourceText;
+    source.hidden = !sourceText;
+    $('map-scale').hidden = !center;
+    c.clearRect(0, 0, this.w, this.h);
     if (!this.data) return;
     c.lineCap = 'round'; c.lineJoin = 'round';
-    if (this.layers.roads) {this.lines(this.roads, '#fffdf8', 4); this.lines(this.roads, '#d0d8c8', .8);}
-    if (this.layers.gps) {
-      this.lines([this.gps], '#5e86b07a', 1.2, [3,5]);
-      const step = Math.max(1, Math.ceil(this.gps.length / 600)); c.fillStyle = '#6586ac';
-      for (let i=0; i<this.gps.length; i+=step) {const p=this.pixel(this.gps[i]); c.beginPath();c.arc(...p,1.6,0,Math.PI*2);c.fill();}
+    if (!street.loaded) {this.lines(this.roads, '#fff', 4); this.lines(this.roads, '#bdc9c5', 1);}
+    if (this.layers.classifier) {this.lines(this.classifier, '#fff8e9', 6); this.lines(this.classifier, '#b76213', 3.4);}
+    if (this.layers.hmm) {this.lines(this.hmm, '#ffffffed', 7.5); this.lines(this.hmm, '#087d61', 4.3);}
+    if (this.layers.gps) this.drawGps();
+    if (this.layers.gps || this.layers.hmm) {
+      this.dot((this.layers.gps ? this.gps[0] : this.snapped[0]) || this.gps[0], 5, '#087c70');
+      this.dot((this.layers.gps ? this.gps.at(-1) : this.snapped.at(-1)) || this.gps.at(-1), 5, '#c24a3d');
     }
-    if (this.layers.classifier) {this.lines(this.classifier, '#fff8e9', 6); this.lines(this.classifier, '#c9913c', 2.6);}
-    if (this.layers.hmm) {this.lines(this.hmm, '#ffffffcc', 5.5); this.lines(this.hmm, '#087f72', 2.8);}
-    this.dot(this.gps[0], 6, '#087c70'); this.dot(this.gps.at(-1), 6, '#b86d48');
     const active = this.gps[this.observation], snap = this.snapped[this.observation];
-    if (snap) {this.lines([[active,snap]], '#42867570', 1.2, [3,3]); this.dot(snap,4,'#087c70');}
-    this.dot(active, 7, '#5c83b0'); this.dot(active, 2, '#fff', '#fff');
-    const nominal = 90 / this.scale; const power = 10 ** Math.floor(Math.log10(nominal)); const length = [1,2,5,10].map(n=>n*power).filter(n=>n<=nominal).at(-1) || nominal;
-    const unit = length >= 1000 ? `${(length/1000).toFixed(length % 1000 ? 1 : 0)} km` : `${Math.round(length)} m`;
-    const bar = document.createElement('span'); bar.textContent = unit; bar.style.cssText = `display:inline-block;width:${Math.round(length*this.scale)}px;border-bottom:1px solid #7d8a77;text-align:center;margin-right:8px;padding-bottom:2px`;
-    const label = document.createElement('span'); label.textContent = 'Vector roads · no external tiles'; $('map-scale').replaceChildren(bar,label);
+    if (snap && this.layers.hmm) {
+      if (this.layers.gps) this.lines([[active,snap]], '#247966', 1.3, [3,3]);
+      this.dot(snap, 4, '#087c70');
+    }
+    if (this.layers.gps) this.dot(active, 6, '#235ccd');
+    const groundScale = this.scale * Math.cosh(Math.PI * (1 - 2 * center[1] / WORLD_SIZE));
+    const nominal = 78 / groundScale;
+    const power = 10 ** Math.floor(Math.log10(nominal));
+    const length = [1,2,5,10].map(n => n * power).filter(n => n <= nominal).at(-1) || nominal;
+    const scale = $('map-scale');
+    scale.textContent = length >= 1000 ? `${Number((length / 1000).toFixed(2))} km` : `${Number(length.toPrecision(2))} m`;
+    scale.style.width = `${Math.round(length * groundScale)}px`;
+  }
+  drawGps() {
+    const c = this.ctx;
+    const occupied = new Set();
+    c.beginPath();
+    for (const point of this.gps) {
+      const [x, y] = this.pixel(point);
+      if (x < -3 || y < -3 || x > this.w + 3 || y > this.h + 3) continue;
+      const cell = `${Math.floor(x / 14)}:${Math.floor(y / 14)}`;
+      if (occupied.has(cell)) continue;
+      occupied.add(cell);
+      c.moveTo(x + 2.45, y);
+      c.arc(x, y, 2.45, 0, 2 * Math.PI);
+    }
+    c.strokeStyle = '#fff';
+    c.lineWidth = .85;
+    c.fillStyle = '#235ccde8';
+    c.stroke();
+    c.fill();
   }
   hover(event, pick = false) {
-    if (!this.data) return;
+    if (!this.data || !this.layers.gps) return;
     const rect = this.canvas.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
     let best = -1, distance = 144;
     for (let i=0; i<this.gps.length; i++) {const p=this.pixel(this.gps[i]), d=(p[0]-x)**2+(p[1]-y)**2; if(d<distance){distance=d;best=i;}}
@@ -248,8 +322,13 @@ const map = new RouteMap($('map'));
 $('trip-search').addEventListener('input', renderTrips);
 $('trip-select').addEventListener('change', e => selectTrip(e.target.value, true));
 $('run-button').addEventListener('click', runPrediction);
+$('model-select').addEventListener('change', () => selectTrip(state.selected, true));
 $('zoom-in').addEventListener('click', () => map.zoom(1.35)); $('zoom-out').addEventListener('click', () => map.zoom(1/1.35)); $('fit-button').addEventListener('click', () => map.fit());
-for (const layer of ['roads','gps','classifier','hmm']) $(`layer-${layer}`).addEventListener('change', e => {map.layers[layer] = e.target.checked; map.draw();});
+for (const layer of ['gps','classifier','hmm']) $(`layer-${layer}`).addEventListener('change', e => {map.layers[layer] = e.target.checked; $('map-tooltip').hidden = true; map.draw();});
+for (const radio of document.querySelectorAll('input[name="basemap"]')) {
+  radio.addEventListener('change', () => map.setBasemap(radio.value));
+}
+if (matchMedia('(max-width: 730px)').matches) $('map-layers').open = false;
 $('timeline').addEventListener('input', e => {stopPlayback(); updateObservation(e.target.value);});
 $('play-button').addEventListener('click', () => {
   if (!state.result) return; if (state.playback) {stopPlayback();return;}
